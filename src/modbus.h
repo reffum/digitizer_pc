@@ -12,6 +12,8 @@ const quint16 DSIZE = 3;
 const quint16 _CR_START = 1;
 const quint16 _CR_TEST = 2;
 
+const quint16 ID_VAL =0x55AA;
+
 // Exception for Modbus methods
 class ModbusException
 {

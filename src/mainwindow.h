@@ -23,13 +23,12 @@ private:
 
     QTimer *updateTimer;
 
-
     void Disconnect();
 
 private slots:
-    void connect_pushButton_clicked(bool checked = false);
-    void start_pushButton_clicked(bool checked = false);
+    void on_connect_pushButton_clicked(bool checked = false);
+    void on_start_pushButton_clicked(bool checked = false);
     void updateTimer_timeout();
-    void saveAction_triggered(bool checked = false);
+    void on_save_action_triggered(bool checked = false);
 };
 #endif // MAINWINDOW_H

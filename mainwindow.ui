@@ -176,6 +176,9 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="save_action">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Сохранть данные в файл</string>
    </property>

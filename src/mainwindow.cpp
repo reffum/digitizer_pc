@@ -21,8 +21,6 @@ MainWindow::MainWindow(QWidget *parent)
     updateTimer->setInterval(1000);
 
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateTimer_timeout()));
-
-    QMetaObject::connectSlotsByName(this);
 }
 
 MainWindow::~MainWindow()
@@ -35,10 +33,11 @@ void MainWindow::Disconnect()
     ui->size_spinBox->setEnabled(false);
     ui->start_pushButton->setEnabled(false);
     m_connectIndicator->setColor(Qt::red);
+    ui->save_action->setEnabled(false);
     ui->connect_pushButton->setText("Подключиться");
 }
 
-void MainWindow::connect_pushButton_clicked(bool checked)
+void MainWindow::on_connect_pushButton_clicked(bool checked)
 {
     Q_UNUSED(checked)
 
@@ -63,7 +62,7 @@ void MainWindow::connect_pushButton_clicked(bool checked)
     }
 }
 
-void MainWindow::start_pushButton_clicked(bool checked)
+void MainWindow::on_start_pushButton_clicked(bool checked)
 {
     Q_UNUSED(checked)
 
@@ -93,7 +92,7 @@ void MainWindow::updateTimer_timeout()
     ui->receiveSize_lcdNumber->display(static_cast<int>(receiveSize));
 }
 
-void MainWindow::saveAction_triggered(bool checked)
+void MainWindow::on_save_action_triggered(bool checked)
 {
     Q_UNUSED(checked)
 

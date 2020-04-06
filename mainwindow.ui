@@ -143,6 +143,16 @@
      </widget>
     </item>
     <item>
+     <widget class="QCheckBox" name="test_checkBox">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>Режим ТЕСТ</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <spacer name="verticalSpacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>

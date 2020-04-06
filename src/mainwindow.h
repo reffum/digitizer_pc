@@ -28,6 +28,7 @@ private:
 private slots:
     void on_connect_pushButton_clicked(bool checked = false);
     void on_start_pushButton_clicked(bool checked = false);
+    void on_test_checkBox_stateChanged(int state);
     void updateTimer_timeout();
     void on_save_action_triggered(bool checked = false);
 };

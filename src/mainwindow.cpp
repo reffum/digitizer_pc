@@ -34,6 +34,7 @@ void MainWindow::Disconnect()
     ui->start_pushButton->setEnabled(false);
     m_connectIndicator->setColor(Qt::red);
     ui->save_action->setEnabled(false);
+    ui->test_checkBox->setEnabled(false);
     ui->connect_pushButton->setText("Подключиться");
 }
 
@@ -49,6 +50,7 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
 
             ui->size_spinBox->setEnabled(true);
             ui->start_pushButton->setEnabled(true);
+            ui->test_checkBox->setEnabled(true);
 
             ui->connect_pushButton->setText("Отключиться");
             m_connectIndicator->setColor(Qt::green);
@@ -115,5 +117,17 @@ void MainWindow::on_save_action_triggered(bool checked)
     if(size != byteArray.size())
     {
         QMessageBox::critical(this, "Ошибка", "Ошибка при записи данных в файл");
+    }
+}
+
+void MainWindow::on_test_checkBox_stateChanged(int state)
+{
+    if(state == Qt::Checked)
+    {
+        Digitizer::SetTestMode(true);
+    }
+    else
+    {
+        Digitizer::SetTestMode(false);
     }
 }

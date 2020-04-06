@@ -5,8 +5,8 @@
 
 // Modbus registers
 const quint16 ID = 0;
-const quint16 CR = 1;
-const quint16 SR = 2;
+const quint16 SR = 1;
+const quint16 CR = 2;
 const quint16 DSIZE = 3;
 
 const quint16 _CR_START = 1;

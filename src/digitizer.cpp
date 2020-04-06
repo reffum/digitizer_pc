@@ -16,6 +16,12 @@ void Digitizer::Connect(QString ip)
     try {
         Modbus::Connect(ip);
 
+        quint16 id = Modbus::ReadRegister(ID);
+        if(id != ID_VAL)
+        {
+            throw DigitizerException("ID устройства неверное");
+        }
+
         /* Create and connect to device for receive UDP data */
         m_udpSocket = new QUdpSocket();
         m_udpSocket->connectToHost(ip, 1024);

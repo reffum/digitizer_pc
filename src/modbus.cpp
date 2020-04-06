@@ -4,7 +4,7 @@
 // Baudrate
 const int ModbusBaudrate = 9600;
 
-const int ModbusTimeout = 3000;
+const int ModbusTimeout = 1000;
 
 const int ModbusTcpPort = 502;
 
@@ -29,7 +29,8 @@ void Modbus::Connect(int comPort)
 
 void Modbus::Connect(QString ip)
 {
-    int r = ModbusTCP_Open(ip.toStdString().c_str(), ModbusTcpPort);
+    const char *ipStr = ip.toStdString().c_str();
+    int r = ModbusTCP_Open(ipStr, ModbusTcpPort);
 
     if(r == MODBUS_MASTER_SUCCESS)
     {

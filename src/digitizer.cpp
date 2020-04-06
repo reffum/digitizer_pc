@@ -26,6 +26,10 @@ void Digitizer::Connect(QString ip)
         m_udpSocket = new QUdpSocket();
         m_udpSocket->connectToHost(ip, 1024);
 
+        /* Write out UDP port to device */
+        Modbus::WriteRegister(REMOTE_DATA_PORT, m_udpSocket->localPort());
+        qDebug() << "Local port: " << m_udpSocket->localPort();
+
         m_connectionState = true;
 
     } catch (ModbusException e) {
@@ -89,6 +93,9 @@ QByteArray Digitizer::GetData()
 
 qint64 Digitizer::GetDataSize()
 {
+    if(!m_udpSocket)
+        return 0;
+
     return m_udpSocket->readBufferSize();
 }
 

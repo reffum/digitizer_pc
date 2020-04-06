@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
     updateTimer->setInterval(1000);
 
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateTimer_timeout()));
+    updateTimer->start();
 }
 
 MainWindow::~MainWindow()

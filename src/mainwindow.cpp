@@ -122,12 +122,20 @@ void MainWindow::on_save_action_triggered(bool checked)
 
 void MainWindow::on_test_checkBox_stateChanged(int state)
 {
-    if(state == Qt::Checked)
-    {
-        Digitizer::SetTestMode(true);
+    try {
+        if(state == Qt::Checked)
+        {
+            Digitizer::SetTestMode(true);
+        }
+        else
+        {
+            Digitizer::SetTestMode(false);
+        }
+    } catch (DigitizerException e) {
+        QMessageBox::critical(this,
+                              "Ошибка",
+                              QString("Ошибка при установке тестового режима: %1")
+                              .arg(e.GetErrorMessage()));
     }
-    else
-    {
-        Digitizer::SetTestMode(false);
-    }
+
 }

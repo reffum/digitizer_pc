@@ -1,7 +1,7 @@
 #ifndef DIGITIZER_H
 #define DIGITIZER_H
 
-#include <QUdpSocket>
+#include <QTcpSocket>
 #include <QString>
 #include "digitizerexception.h"
 
@@ -12,7 +12,7 @@ class Digitizer : public QObject
 {
     Q_OBJECT
 
-    QUdpSocket *m_udpSocket;
+    QTcpSocket *m_tcpSocket;
     bool m_connectionState;
     QByteArray m_byteArray;
 

@@ -1,22 +1,23 @@
+#include <QNetworkDatagram>
 #include "digitizer.h"
 #include "digitizerexception.h"
 #include "modbus.h"
 
+const int TCP_DATA_PORT = 1024;
+
 Digitizer::Digitizer(QObject* parent):
-    m_udpSocket(nullptr), m_connectionState(false)
+    m_tcpSocket(nullptr), m_connectionState(false)
 {
+    bool r;
     Q_UNUSED(parent)
 
     /* Create and connect to device for receive UDP data */
-    m_udpSocket = new QUdpSocket(this);
-    m_udpSocket->bind(QHostAddress::LocalHost);
-
-    connect(m_udpSocket, SIGNAL(readReady()), this, SLOT(on_m_udpSocket_readyRead));
+    m_tcpSocket = new QTcpSocket(this);
 }
 
 Digitizer::~Digitizer()
 {
-    delete m_udpSocket;
+    delete m_tcpSocket;
 }
 
 void Digitizer::Connect(QString ip)
@@ -30,9 +31,8 @@ void Digitizer::Connect(QString ip)
             throw DigitizerException("ID устройства неверное");
         }
 
-        /* Write out UDP port to device */
-        Modbus::WriteRegister(REMOTE_DATA_PORT, m_udpSocket->localPort());
-        qDebug() << "Local port: " << m_udpSocket->localPort();
+        m_tcpSocket->connectToHost(QHostAddress(ip), TCP_DATA_PORT);
+        connect(m_tcpSocket, &QTcpSocket::readyRead, this, &Digitizer::on_m_udpSocket_readyRead);
 
         m_connectionState = true;
 
@@ -44,6 +44,7 @@ void Digitizer::Connect(QString ip)
 void Digitizer::Disconnect()
 {
     Modbus::Disconnect();
+    m_tcpSocket->disconnectFromHost();
     m_connectionState = false;
 }
 
@@ -77,7 +78,7 @@ bool Digitizer::GetTestMode()
 void Digitizer::StartReceive(int size)
 {
     try {
-        Modbus::WriteRegister(DSIZE, static_cast<quint16>(size));
+        Modbus::WriteRegister(DSIZE, static_cast<quint16>(size >> 6));
 
         quint16 cr = Modbus::ReadRegister(CR);
         cr |= _CR_START;
@@ -91,15 +92,12 @@ void Digitizer::StartReceive(int size)
 
 QByteArray Digitizer::GetData()
 {
-    return m_udpSocket->readAll();
+    return m_tcpSocket->readAll();
 }
 
 qint64 Digitizer::GetDataSize()
 {
-    if(!m_udpSocket)
-        return 0;
-
-    return m_udpSocket->readBufferSize();
+    return m_tcpSocket->size();
 }
 
 bool Digitizer::GetConnectionState()
@@ -109,5 +107,5 @@ bool Digitizer::GetConnectionState()
 
 void Digitizer::on_m_udpSocket_readyRead()
 {
-    qDebug() << "Data received";
+    qDebug() << "Data received";    
 }

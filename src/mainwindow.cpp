@@ -55,6 +55,7 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
             ui->size_spinBox->setEnabled(true);
             ui->start_pushButton->setEnabled(true);
             ui->test_checkBox->setEnabled(true);
+            ui->save_action->setEnabled(true);
 
             ui->connect_pushButton->setText("Отключиться");
             m_connectIndicator->setColor(Qt::green);

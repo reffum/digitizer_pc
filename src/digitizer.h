@@ -8,42 +8,47 @@
 //
 // This class control Digitizer device
 //
-class Digitizer
+class Digitizer : public QObject
 {
-private:
-    Digitizer();        
+    Q_OBJECT
 
-    static QUdpSocket *m_udpSocket; 
-
-    static bool m_connectionState;
+    QUdpSocket *m_udpSocket;
+    bool m_connectionState;
+    QByteArray m_byteArray;
 
 public:
+    Digitizer(QObject* parent = nullptr);
+    virtual ~Digitizer();
+
     // In kB
     static const int MinDataSize = 64;
 
     // All methods throw DigitizerException in case of error, if otherwise not specified.
 public:
     // Connect to device
-    static void Connect(QString IP);
+    void Connect(QString IP);
 
     // Test mode
-    static bool GetTestMode();
-    static void SetTestMode(bool);
+    bool GetTestMode();
+    void SetTestMode(bool);
 
     // Start transsmit and receive packet
     // size in 64 kB
-    static void StartReceive(int size);
+    void StartReceive(int size);
 
     // Disconnect from device
-    static void Disconnect();
+    void Disconnect();
 
     // Get data, received from device
-    static QByteArray GetData();
+    QByteArray GetData();
 
     // Get data size
-    static qint64 GetDataSize();
+    qint64 GetDataSize();
 
-    static bool GetConnectionState();
+    bool GetConnectionState();
+
+private slots:
+    void on_m_udpSocket_readyRead();
 };
 
 #endif // DIGITIZER_H

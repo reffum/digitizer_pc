@@ -4,11 +4,12 @@
 #include <QFileDialog>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "digitizer.h"
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    , ui(new Ui::MainWindow),
+      m_digitizer(nullptr)
 {
     ui->setupUi(this);
     setFixedSize(300, 350);
@@ -22,6 +23,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateTimer_timeout()));
     updateTimer->start();
+
+    m_digitizer = new Digitizer(this);
 }
 
 MainWindow::~MainWindow()
@@ -44,10 +47,10 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
     Q_UNUSED(checked)
 
     try {
-        if(!Digitizer::GetConnectionState())
+        if(!m_digitizer->GetConnectionState())
         {
             QString ip = ui->ip_lineEdit->text();
-            Digitizer::Connect(ip);
+            m_digitizer->Connect(ip);
 
             ui->size_spinBox->setEnabled(true);
             ui->start_pushButton->setEnabled(true);
@@ -81,7 +84,7 @@ void MainWindow::on_start_pushButton_clicked(bool checked)
         size = size - (size % ui->size_spinBox->singleStep());
         ui->size_spinBox->setValue(size);
 
-        Digitizer::StartReceive(size);
+        m_digitizer->StartReceive(size);
 
     } catch (DigitizerException e) {
         QMessageBox::critical(this, "Ошибка", e.GetErrorMessage());
@@ -91,7 +94,7 @@ void MainWindow::on_start_pushButton_clicked(bool checked)
 
 void MainWindow::updateTimer_timeout()
 {
-    qint64 receiveSize = Digitizer::GetDataSize();
+    qint64 receiveSize = m_digitizer->GetDataSize();
     ui->receiveSize_lcdNumber->display(static_cast<int>(receiveSize));
 }
 
@@ -111,7 +114,7 @@ void MainWindow::on_save_action_triggered(bool checked)
         return;
     }
 
-    QByteArray byteArray = Digitizer::GetData();
+    QByteArray byteArray = m_digitizer->GetData();
 
     qint64 size = file.write(byteArray);
 
@@ -126,11 +129,11 @@ void MainWindow::on_test_checkBox_stateChanged(int state)
     try {
         if(state == Qt::Checked)
         {
-            Digitizer::SetTestMode(true);
+            m_digitizer->SetTestMode(true);
         }
         else
         {
-            Digitizer::SetTestMode(false);
+            m_digitizer->SetTestMode(false);
         }
     } catch (DigitizerException e) {
         QMessageBox::critical(this,

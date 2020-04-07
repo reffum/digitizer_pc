@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "qindicator.h"
+#include "digitizer.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -22,6 +23,8 @@ private:
     QIndicator *m_connectIndicator;
 
     QTimer *updateTimer;
+
+    Digitizer* m_digitizer;
 
     void Disconnect();
 

@@ -2,17 +2,25 @@
 #include "digitizerexception.h"
 #include "modbus.h"
 
-QUdpSocket* Digitizer::m_udpSocket;
-bool Digitizer::m_connectionState = false;
-
-Digitizer::Digitizer()
+Digitizer::Digitizer(QObject* parent):
+    m_udpSocket(nullptr), m_connectionState(false)
 {
+    Q_UNUSED(parent)
 
+    /* Create and connect to device for receive UDP data */
+    m_udpSocket = new QUdpSocket(this);
+    m_udpSocket->bind(QHostAddress::LocalHost);
+
+    connect(m_udpSocket, SIGNAL(readReady()), this, SLOT(on_m_udpSocket_readyRead));
+}
+
+Digitizer::~Digitizer()
+{
+    delete m_udpSocket;
 }
 
 void Digitizer::Connect(QString ip)
 {
-
     try {
         Modbus::Connect(ip);
 
@@ -21,10 +29,6 @@ void Digitizer::Connect(QString ip)
         {
             throw DigitizerException("ID устройства неверное");
         }
-
-        /* Create and connect to device for receive UDP data */
-        m_udpSocket = new QUdpSocket();
-        m_udpSocket->connectToHost(ip, 1024);
 
         /* Write out UDP port to device */
         Modbus::WriteRegister(REMOTE_DATA_PORT, m_udpSocket->localPort());
@@ -40,7 +44,6 @@ void Digitizer::Connect(QString ip)
 void Digitizer::Disconnect()
 {
     Modbus::Disconnect();
-    m_udpSocket->disconnectFromHost();
     m_connectionState = false;
 }
 
@@ -102,4 +105,9 @@ qint64 Digitizer::GetDataSize()
 bool Digitizer::GetConnectionState()
 {
     return m_connectionState;
+}
+
+void Digitizer::on_m_udpSocket_readyRead()
+{
+    qDebug() << "Data received";
 }

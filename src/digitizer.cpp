@@ -31,8 +31,6 @@ void Digitizer::Connect(QString ip)
         }
 
         m_tcpSocket->connectToHost(QHostAddress(ip), TCP_DATA_PORT);
-        connect(m_tcpSocket, &QTcpSocket::readyRead, this, &Digitizer::on_m_udpSocket_readyRead);
-
         m_connectionState = true;
 
     } catch (ModbusException e) {
@@ -117,9 +115,4 @@ Version Digitizer::GetVersion()
         Disconnect();
         throw DigitizerException(e.getMessage());
     }
-}
-
-void Digitizer::on_m_udpSocket_readyRead()
-{
-    qDebug() << "Data received";    
 }

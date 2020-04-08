@@ -53,9 +53,6 @@ public:
     bool GetConnectionState();
 
     Version GetVersion();
-
-private slots:
-    void on_m_udpSocket_readyRead();
 };
 
 #endif // DIGITIZER_H

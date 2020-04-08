@@ -63,6 +63,7 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
         else
         {
             Disconnect();
+            m_digitizer->Disconnect();
         }
     } catch (DigitizerException e) {
         QMessageBox::critical(this, "Ошибка подключения", e.GetErrorMessage());

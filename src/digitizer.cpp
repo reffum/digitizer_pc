@@ -8,7 +8,6 @@ const int TCP_DATA_PORT = 1024;
 Digitizer::Digitizer(QObject* parent):
     m_tcpSocket(nullptr), m_connectionState(false)
 {
-    bool r;
     Q_UNUSED(parent)
 
     /* Create and connect to device for receive UDP data */
@@ -103,6 +102,21 @@ qint64 Digitizer::GetDataSize()
 bool Digitizer::GetConnectionState()
 {
     return m_connectionState;
+}
+
+Version Digitizer::GetVersion()
+{
+    try {
+        Version v;
+        v.v1 = Modbus::ReadRegister(V1);
+        v.v2 = Modbus::ReadRegister(V2);
+        v.v3 = Modbus::ReadRegister(V3);
+
+        return v;
+    } catch (ModbusException e) {
+        Disconnect();
+        throw DigitizerException(e.getMessage());
+    }
 }
 
 void Digitizer::on_m_udpSocket_readyRead()

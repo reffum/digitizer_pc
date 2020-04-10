@@ -47,6 +47,9 @@ public:
 
     bool GetConnectionState();
 
+    // Write word to SPI
+    void SendSpiWord(quint16);
+
 private slots:
     void on_m_udpSocket_readyRead();
 };

@@ -143,6 +143,13 @@
      </widget>
     </item>
     <item>
+     <widget class="QPushButton" name="adcSpi_pushButton">
+      <property name="text">
+       <string>Запись в АЦП</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QCheckBox" name="test_checkBox">
       <property name="enabled">
        <bool>false</bool>

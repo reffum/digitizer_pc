@@ -145,3 +145,12 @@ void MainWindow::on_test_checkBox_stateChanged(int state)
     }
 
 }
+
+// This method write words in SPI, when user click to "Write to ADC" button
+void MainWindow::on_adcSpi_button_clicked(bool checked)
+{
+    Q_UNUSED(checked)
+
+    m_digitizer->SendSpiWord(0x000E0);
+    m_digitizer->SendSpiWord(0x000E0);
+}

@@ -9,6 +9,7 @@ const quint16 SR = 1;
 const quint16 CR = 2;
 const quint16 DSIZE = 3;
 const quint16 REMOTE_DATA_PORT = 4;
+const quint16 SPI_SEND = 8;
 
 const quint16 _CR_START = 1;
 const quint16 _CR_TEST = 2;

@@ -105,6 +105,15 @@ bool Digitizer::GetConnectionState()
     return m_connectionState;
 }
 
+void Digitizer::SendSpiWord(quint16 word)
+{
+    try {
+        Modbus::WriteRegister(SPI_SEND, word);
+    } catch (ModbusException e) {
+        throw DigitizerException(e.getMessage());
+    }
+}
+
 void Digitizer::on_m_udpSocket_readyRead()
 {
     qDebug() << "Data received";    

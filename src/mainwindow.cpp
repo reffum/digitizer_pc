@@ -18,6 +18,9 @@ MainWindow::MainWindow(QWidget *parent)
     m_connectIndicator->setColor(Qt::red);
     statusBar()->addWidget(m_connectIndicator);
 
+    m_versionLabel = new QLabel(this);
+    statusBar()->addWidget(m_versionLabel);
+
     updateTimer = new QTimer(this);
     updateTimer->setInterval(1000);
 
@@ -59,6 +62,17 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
 
             ui->connect_pushButton->setText("Отключиться");
             m_connectIndicator->setColor(Qt::green);
+
+            Version v = m_digitizer->GetVersion();
+
+            m_versionLabel->setText(QString("Версия прошивки: %1.%2.%3")
+                                    .arg(v.v1)
+                                    .arg(v.v2)
+                                    .arg(v.v3));
+            /* Get state of TEST mode */
+            bool test = m_digitizer->GetTestMode();
+
+            ui->test_checkBox->setCheckState(test ? Qt::Checked : Qt::Unchecked);
         }
         else
         {

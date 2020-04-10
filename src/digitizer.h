@@ -5,6 +5,11 @@
 #include <QString>
 #include "digitizerexception.h"
 
+struct Version
+{
+    int v1,v2,v3;
+};
+
 //
 // This class control Digitizer device
 //
@@ -21,7 +26,7 @@ public:
     virtual ~Digitizer();
 
     // In kB
-    static const int MinDataSize = 64;
+    static const int MinDataSize = 64;   
 
     // All methods throw DigitizerException in case of error, if otherwise not specified.
 public:
@@ -47,11 +52,10 @@ public:
 
     bool GetConnectionState();
 
+ 	Version GetVersion();
+
     // Write word to SPI
     void SendSpiWord(quint16);
-
-private slots:
-    void on_m_udpSocket_readyRead();
 };
 
 #endif // DIGITIZER_H

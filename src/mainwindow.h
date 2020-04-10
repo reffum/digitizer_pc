@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QLabel>
 #include "qindicator.h"
 #include "digitizer.h"
 
@@ -21,6 +22,7 @@ private:
     Ui::MainWindow *ui;
 
     QIndicator *m_connectIndicator;
+    QLabel *m_versionLabel;
 
     QTimer *updateTimer;
 

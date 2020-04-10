@@ -42,6 +42,7 @@ void MainWindow::Disconnect()
     m_connectIndicator->setColor(Qt::red);
     ui->save_action->setEnabled(false);
     ui->test_checkBox->setEnabled(false);
+    ui->adcSpi_pushButton->setEnabled(false);
     ui->connect_pushButton->setText("Подключиться");
 }
 
@@ -59,6 +60,7 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
             ui->start_pushButton->setEnabled(true);
             ui->test_checkBox->setEnabled(true);
             ui->save_action->setEnabled(true);
+            ui->adcSpi_pushButton->setEnabled(true);
 
             ui->connect_pushButton->setText("Отключиться");
             m_connectIndicator->setColor(Qt::green);
@@ -161,10 +163,16 @@ void MainWindow::on_test_checkBox_stateChanged(int state)
 }
 
 // This method write words in SPI, when user click to "Write to ADC" button
-void MainWindow::on_adcSpi_button_clicked(bool checked)
+void MainWindow::on_adcSpi_pushButton_clicked(bool checked)
 {
     Q_UNUSED(checked)
 
-    m_digitizer->SendSpiWord(0x000E0);
-    m_digitizer->SendSpiWord(0x000E0);
+    try {
+        m_digitizer->SendSpiWord(0x000E0);
+        m_digitizer->SendSpiWord(0x000E0);
+    } catch (DigitizerException e) {
+        QMessageBox::critical(this,
+                              "Ошибка",
+                              QString("Ошибка при записи регистров АЦП(%1)").arg(e.GetErrorMessage()));
+    }
 }

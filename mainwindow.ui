@@ -144,6 +144,9 @@
     </item>
     <item>
      <widget class="QPushButton" name="adcSpi_pushButton">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="text">
        <string>Запись в АЦП</string>
       </property>

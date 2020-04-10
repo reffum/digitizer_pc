@@ -36,6 +36,6 @@ private slots:
     void on_test_checkBox_stateChanged(int state);
     void updateTimer_timeout();
     void on_save_action_triggered(bool checked = false);
-    void on_adcSpi_button_clicked(bool checked = false);
+    void on_adcSpi_pushButton_clicked(bool checked = false);
 };
 #endif // MAINWINDOW_H

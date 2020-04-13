@@ -43,6 +43,7 @@ void MainWindow::Disconnect()
     ui->save_action->setEnabled(false);
     ui->test_checkBox->setEnabled(false);
     ui->adcSpi_pushButton->setEnabled(false);
+    ui->clkdistSpi_pushButton->setEnabled(false);
     ui->connect_pushButton->setText("Подключиться");
 }
 
@@ -61,6 +62,7 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
             ui->test_checkBox->setEnabled(true);
             ui->save_action->setEnabled(true);
             ui->adcSpi_pushButton->setEnabled(true);
+            ui->clkdistSpi_pushButton->setEnabled(true);
 
             ui->connect_pushButton->setText("Отключиться");
             m_connectIndicator->setColor(Qt::green);
@@ -174,5 +176,31 @@ void MainWindow::on_adcSpi_pushButton_clicked(bool checked)
         QMessageBox::critical(this,
                               "Ошибка",
                               QString("Ошибка при записи регистров АЦП(%1)").arg(e.GetErrorMessage()));
+    }
+}
+
+/* Return CLKDIST word(see datasheet for details) */
+static quint16 getClkDistWord(quint16 data, quint8 addr)
+{
+    quint16 w = 0;
+    w = static_cast<quint16>(data << 7);
+
+    w |= (addr & 0x7) << 3;
+
+    w |= 0x1;
+
+    return w;
+}
+
+void MainWindow::on_clkdistSpi_pushButton_clicked(bool checked)
+{
+    Q_UNUSED(checked)
+
+    try {
+        m_digitizer->SendSpiClkDist(getClkDistWord(0, 4));
+    } catch (DigitizerException e) {
+        QMessageBox::critical(this,
+                              "Ошибка",
+                              QString("Ошибка при записи регистров CLKDIST(%1)").arg(e.GetErrorMessage()));
     }
 }

@@ -11,7 +11,8 @@ const quint16 DSIZE = 3;
 const quint16 REMOTE_DATA_PORT = 4;const quint16 V1 = 5;
 const quint16 V2 = 6;
 const quint16 V3 = 7;
-const quint16 SPI_SEND = 8;
+const quint16 ADC_SPI_SEND = 8;
+const quint16 CLK_SPI_SEND = 9;
 
 const quint16 _CR_START = 1;
 const quint16 _CR_TEST = 2;

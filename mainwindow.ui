@@ -153,6 +153,16 @@
      </widget>
     </item>
     <item>
+     <widget class="QPushButton" name="clkdistSpi_pushButton">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>Запись CLKDIST</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QCheckBox" name="test_checkBox">
       <property name="enabled">
        <bool>false</bool>

@@ -54,8 +54,11 @@ public:
 
  	Version GetVersion();
 
-    // Write word to SPI
+    // Write word to ADC
     void SendSpiWord(quint16);
+
+    // Write word to CLKDIST
+    void SendSpiClkDist(quint16);
 };
 
 #endif // DIGITIZER_H

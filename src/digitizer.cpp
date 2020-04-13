@@ -120,9 +120,17 @@ Version Digitizer::GetVersion()
 void Digitizer::SendSpiWord(quint16 word)
 {
     try {
-        Modbus::WriteRegister(SPI_SEND, word);
+        Modbus::WriteRegister(ADC_SPI_SEND, word);
     } catch (ModbusException e) {
         throw DigitizerException(e.getMessage());
     }
 }
 
+void Digitizer::SendSpiClkDist(quint16 word)
+{
+    try {
+        Modbus::WriteRegister(CLK_SPI_SEND, word);
+    } catch (ModbusException e) {
+        throw DigitizerException(e.getMessage());
+    }
+}

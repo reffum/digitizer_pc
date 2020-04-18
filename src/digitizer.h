@@ -26,7 +26,12 @@ public:
     virtual ~Digitizer();
 
     // In kB
-    static const int MinDataSize = 64;   
+    static const int MinDataSize = 64;
+
+    static const unsigned PWM_MIN_FREQ = 10000;
+    static const unsigned PWM_MAX_FREQ = 15000;
+    static const unsigned PWM_MIN_DC = 1;
+    static const unsigned PWM_MAX_DC = 99;
 
     // All methods throw DigitizerException in case of error, if otherwise not specified.
 public:
@@ -59,6 +64,16 @@ public:
 
     // Write word to CLKDIST
     void SendSpiClkDist(quint16);
+
+    // PWM control
+    void SetPwmEnable(bool);
+    bool GetPwmEnable();
+
+    void SetPwmFreq(unsigned freq);
+    unsigned GetPwmFreq();
+
+    void SetPwmDC(unsigned dc);
+    unsigned GetPwmDC();
 };
 
 #endif // DIGITIZER_H

@@ -38,5 +38,6 @@ private slots:
     void on_save_action_triggered(bool checked = false);
     void on_adcSpi_pushButton_clicked(bool checked = false);
     void on_clkdistSpi_pushButton_clicked(bool checked = false);
+    void on_pwm_pushButton_clicked(bool checked = false);
 };
 #endif // MAINWINDOW_H

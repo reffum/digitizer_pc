@@ -41,5 +41,5 @@ INCLUDEPATH += libs src
 LIBS += "$$PWD/libs/SHARK_DLL32.dll"
 
 RC_ICONS = images/app.ico
-VERSION = 1.0.0.0
+VERSION = 1.1.0.0
 

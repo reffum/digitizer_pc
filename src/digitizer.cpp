@@ -134,3 +134,64 @@ void Digitizer::SendSpiClkDist(quint16 word)
         throw DigitizerException(e.getMessage());
     }
 }
+
+void Digitizer::SetPwmEnable(bool b)
+{
+    try {
+        if(b)
+            Modbus::WriteRegister(PWM_CONTROL, _PWM_CONTROL_ENABLE);
+        else
+            Modbus::WriteRegister(PWM_CONTROL, 0);
+    } catch (ModbusException e) {
+        throw DigitizerException(e.getMessage());
+    }
+}
+
+bool Digitizer::GetPwmEnable()
+{
+    try {
+        quint16 pwmControl = Modbus::ReadRegister(PWM_CONTROL);
+        if(pwmControl & _PWM_CONTROL_ENABLE)
+            return true;
+        else
+            return false;
+    } catch (ModbusException e) {
+        throw DigitizerException(e.getMessage());
+    }
+}
+
+void Digitizer::SetPwmFreq(unsigned int freq)
+{
+    try {
+        Modbus::WriteRegister(PWM_FREQ, static_cast<quint16>(freq));
+    } catch (ModbusException e) {
+        throw DigitizerException(e.getMessage());
+    }
+}
+
+unsigned Digitizer::GetPwmFreq()
+{
+    try {
+        return Modbus::ReadRegister(PWM_FREQ);
+    } catch (ModbusException e) {
+        throw DigitizerException(e.getMessage());
+    }
+}
+
+void Digitizer::SetPwmDC(unsigned int dc)
+{
+    try {
+        Modbus::WriteRegister(PWM_DC, static_cast<quint16>(dc));
+    } catch (ModbusException e) {
+        throw DigitizerException(e.getMessage());
+    }
+}
+
+unsigned Digitizer::GetPwmDC()
+{
+    try {
+        return Modbus::ReadRegister(PWM_DC);
+    } catch (ModbusException e) {
+        throw DigitizerException(e.getMessage());
+    }
+}

@@ -44,6 +44,7 @@ void MainWindow::Disconnect()
     ui->test_checkBox->setEnabled(false);
     ui->adcSpi_pushButton->setEnabled(false);
     ui->clkdistSpi_pushButton->setEnabled(false);
+    ui->pwm_groupBox->setEnabled(false);
     ui->connect_pushButton->setText("Подключиться");
 }
 
@@ -63,6 +64,7 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
             ui->save_action->setEnabled(true);
             ui->adcSpi_pushButton->setEnabled(true);
             ui->clkdistSpi_pushButton->setEnabled(true);
+            ui->pwm_groupBox->setEnabled(true);
 
             ui->connect_pushButton->setText("Отключиться");
             m_connectIndicator->setColor(Qt::green);
@@ -77,6 +79,17 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
             bool test = m_digitizer->GetTestMode();
 
             ui->test_checkBox->setCheckState(test ? Qt::Checked : Qt::Unchecked);
+
+            /* Get PWM parameters */
+            QSignalBlocker pwm_checkBoxBlocker(ui->pwm_checkBox);
+
+            if(m_digitizer->GetPwmEnable())
+                ui->pwm_checkBox->setChecked(true);
+            else
+                ui->pwm_checkBox->setChecked(false);
+
+            ui->pwmFreq_spinBox->setValue(static_cast<int>(m_digitizer->GetPwmFreq()));
+            ui->pwmDC_spinBox->setValue(static_cast<int>(m_digitizer->GetPwmDC()));
         }
         else
         {
@@ -202,5 +215,23 @@ void MainWindow::on_clkdistSpi_pushButton_clicked(bool checked)
         QMessageBox::critical(this,
                               "Ошибка",
                               QString("Ошибка при записи регистров CLKDIST(%1)").arg(e.GetErrorMessage()));
+    }
+}
+
+void MainWindow::on_pwm_pushButton_clicked(bool checked)
+{
+    Q_UNUSED(checked)
+
+    try {
+        unsigned freq = static_cast<unsigned>(ui->pwmFreq_spinBox->value());
+        unsigned dc = static_cast<unsigned>(ui->pwmDC_spinBox->value());
+
+        m_digitizer->SetPwmFreq(freq);
+        m_digitizer->SetPwmDC(dc);
+    } catch (DigitizerException e) {
+        QMessageBox::critical(this,
+                              "Ошибка",
+                              QString("Ошибка при установке параметров ШИМ(%1)").arg(e.GetErrorMessage()));
+
     }
 }

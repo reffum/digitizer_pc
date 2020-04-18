@@ -13,9 +13,14 @@ const quint16 V2 = 6;
 const quint16 V3 = 7;
 const quint16 ADC_SPI_SEND = 8;
 const quint16 CLK_SPI_SEND = 9;
+const quint16 PWM_FREQ = 10;
+const quint16 PWM_DC = 11;
+const quint16 PWM_CONTROL = 12;
 
 const quint16 _CR_START = 1;
 const quint16 _CR_TEST = 2;
+
+const quint16 _PWM_CONTROL_ENABLE = 1;
 
 const quint16 ID_VAL =0x55AA;
 

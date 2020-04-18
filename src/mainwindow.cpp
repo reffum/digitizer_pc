@@ -183,8 +183,7 @@ void MainWindow::on_adcSpi_pushButton_clicked(bool checked)
     Q_UNUSED(checked)
 
     try {
-        m_digitizer->SendSpiWord(0x000E0);
-        m_digitizer->SendSpiWord(0x000E0);
+       // m_digitizer->AdcWrite(0, 0x66);
     } catch (DigitizerException e) {
         QMessageBox::critical(this,
                               "Ошибка",
@@ -192,25 +191,12 @@ void MainWindow::on_adcSpi_pushButton_clicked(bool checked)
     }
 }
 
-/* Return CLKDIST word(see datasheet for details) */
-static quint16 getClkDistWord(quint16 data, quint8 addr)
-{
-    quint16 w = 0;
-    w = static_cast<quint16>(data << 7);
-
-    w |= (addr & 0x7) << 3;
-
-    w |= 0x1;
-
-    return w;
-}
-
 void MainWindow::on_clkdistSpi_pushButton_clicked(bool checked)
 {
     Q_UNUSED(checked)
 
     try {
-        m_digitizer->SendSpiClkDist(getClkDistWord(0, 4));
+       // m_digitizer->ClkdistWrite(2, 0xFF);
     } catch (DigitizerException e) {
         QMessageBox::critical(this,
                               "Ошибка",

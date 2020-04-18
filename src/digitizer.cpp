@@ -117,19 +117,43 @@ Version Digitizer::GetVersion()
     }
 }
 
-void Digitizer::SendSpiWord(quint16 word)
+void Digitizer::AdcWrite(quint8 addr, quint8 data)
 {
     try {
-        Modbus::WriteRegister(ADC_SPI_SEND, word);
+        Modbus::WriteRegister(ADC_ADDR, addr);
+        Modbus::WriteRegister(ADC_DATA, data);
     } catch (ModbusException e) {
         throw DigitizerException(e.getMessage());
     }
 }
 
-void Digitizer::SendSpiClkDist(quint16 word)
+quint8 Digitizer::AdcRead(quint8 addr)
 {
     try {
-        Modbus::WriteRegister(CLK_SPI_SEND, word);
+        Modbus::WriteRegister(ADC_ADDR, addr);
+        quint16 data = Modbus::ReadRegister(ADC_DATA);
+        return static_cast<quint8>(data);
+    } catch (ModbusException e) {
+        throw DigitizerException(e.getMessage());
+    }
+}
+
+void Digitizer::ClkdistWrite(quint8 addr, quint16 data)
+{
+    try {
+        Modbus::WriteRegister(CLK_ADDR, addr);
+        Modbus::WriteRegister(CLK_DATA, data);
+    } catch (ModbusException e) {
+        throw DigitizerException(e.getMessage());
+    }
+}
+
+quint16 Digitizer::ClkdistRead(quint8 addr)
+{
+    try {
+        Modbus::WriteRegister(CLK_ADDR, addr);
+        quint16 data = Modbus::ReadRegister(CLK_DATA);
+        return static_cast<quint8>(data);
     } catch (ModbusException e) {
         throw DigitizerException(e.getMessage());
     }

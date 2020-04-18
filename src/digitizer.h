@@ -59,11 +59,11 @@ public:
 
  	Version GetVersion();
 
-    // Write word to ADC
-    void SendSpiWord(quint16);
+    void AdcWrite(quint8 addr, quint8 data);
+    quint8 AdcRead(quint8 addr);
 
-    // Write word to CLKDIST
-    void SendSpiClkDist(quint16);
+    void ClkdistWrite(quint8 addr, quint16 data);
+    quint16 ClkdistRead(quint8 addr);
 
     // PWM control
     void SetPwmEnable(bool);

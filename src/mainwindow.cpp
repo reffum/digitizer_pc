@@ -99,6 +99,7 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
     } catch (DigitizerException e) {
         QMessageBox::critical(this, "Ошибка подключения", e.GetErrorMessage());
         Disconnect();
+        m_digitizer->Disconnect();
     }
 }
 
@@ -215,6 +216,21 @@ void MainWindow::on_pwm_pushButton_clicked(bool checked)
 
         m_digitizer->SetPwmFreq(freq);
         m_digitizer->SetPwmDC(dc);
+    } catch (DigitizerException e) {
+        QMessageBox::critical(this,
+                              "Ошибка",
+                              QString("Ошибка при установке параметров ШИМ(%1)").arg(e.GetErrorMessage()));
+
+    }
+}
+
+void MainWindow::on_pwm_checkBox_stateChanged(int state)
+{
+    try {
+        if(state == Qt::Checked)
+            m_digitizer->SetPwmEnable(true);
+        else
+            m_digitizer->SetPwmEnable(false);
     } catch (DigitizerException e) {
         QMessageBox::critical(this,
                               "Ошибка",

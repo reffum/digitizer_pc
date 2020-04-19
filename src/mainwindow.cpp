@@ -12,7 +12,7 @@ MainWindow::MainWindow(QWidget *parent)
       m_digitizer(nullptr)
 {
     ui->setupUi(this);
-    setFixedSize(300, 350);
+    setFixedSize(300, 580);
 
     m_connectIndicator = new QIndicator(this);
     m_connectIndicator->setColor(Qt::red);
@@ -98,6 +98,7 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
         }
     } catch (DigitizerException e) {
         QMessageBox::critical(this, "Ошибка подключения", e.GetErrorMessage());
+        Disconnect();
     }
 }
 

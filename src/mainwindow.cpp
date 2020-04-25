@@ -185,7 +185,7 @@ void MainWindow::on_adcSpi_pushButton_clicked(bool checked)
     Q_UNUSED(checked)
 
     try {
-       // m_digitizer->AdcWrite(0, 0x66);
+       m_digitizer->AdcWrite(0, 0x66);
     } catch (DigitizerException e) {
         QMessageBox::critical(this,
                               "Ошибка",

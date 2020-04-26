@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>300</width>
+    <width>306</width>
     <height>580</height>
    </rect>
   </property>
@@ -59,7 +59,10 @@
      </widget>
     </item>
     <item>
-     <widget class="QGroupBox" name="groupBox_2">
+     <widget class="QGroupBox" name="control_groupBox">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="title">
        <string>Управление</string>
       </property>
@@ -128,6 +131,13 @@
            </property>
            <property name="segmentStyle">
             <enum>QLCDNumber::Flat</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="save_pushButton">
+           <property name="text">
+            <string>Сохранить</string>
            </property>
           </widget>
          </item>
@@ -246,7 +256,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>300</width>
+     <width>306</width>
      <height>21</height>
     </rect>
    </property>

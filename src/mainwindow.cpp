@@ -5,6 +5,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+// The path where file is saved, when user push button "Сохранить"
+const QString DefaultSaveFile = "C:/Project/1.dat";
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -17,6 +19,9 @@ MainWindow::MainWindow(QWidget *parent)
     m_connectIndicator = new QIndicator(this);
     m_connectIndicator->setColor(Qt::red);
     statusBar()->addWidget(m_connectIndicator);
+
+    // Add tooltip for "Сохранить" button
+    ui->save_pushButton->setToolTip(QString("Сохранить в файл %1").arg(DefaultSaveFile));
 
     m_versionLabel = new QLabel(this);
     statusBar()->addWidget(m_versionLabel);
@@ -39,6 +44,7 @@ void MainWindow::Disconnect()
 {
     ui->size_spinBox->setEnabled(false);
     ui->start_pushButton->setEnabled(false);
+    ui->control_groupBox->setEnabled(false);
     m_connectIndicator->setColor(Qt::red);
     ui->save_action->setEnabled(false);
     ui->test_checkBox->setEnabled(false);
@@ -60,6 +66,7 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
 
             ui->size_spinBox->setEnabled(true);
             ui->start_pushButton->setEnabled(true);
+            ui->control_groupBox->setEnabled(true);
             ui->test_checkBox->setEnabled(true);
             ui->save_action->setEnabled(true);
             ui->adcSpi_pushButton->setEnabled(true);
@@ -124,6 +131,30 @@ void MainWindow::on_start_pushButton_clicked(bool checked)
     } catch (DigitizerException e) {
         QMessageBox::critical(this, "Ошибка", e.GetErrorMessage());
         Disconnect();
+    }
+}
+
+void MainWindow::on_save_pushButton_clicked(bool checked)
+{
+    Q_UNUSED(checked)
+
+    QString fileName = DefaultSaveFile;
+
+    QFile file(fileName);
+
+    if(!file.open(QIODevice::ReadWrite))
+    {
+        QMessageBox::critical(this, "Ошибка", "Невозможно создать файл");
+        return;
+    }
+
+    QByteArray byteArray = m_digitizer->GetData();
+
+    qint64 size = file.write(byteArray);
+
+    if(size != byteArray.size())
+    {
+        QMessageBox::critical(this, "Ошибка", "Ошибка при записи данных в файл");
     }
 }
 

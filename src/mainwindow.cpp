@@ -51,6 +51,7 @@ void MainWindow::Disconnect()
     ui->adcSpi_pushButton->setEnabled(false);
     ui->clkdistSpi_pushButton->setEnabled(false);
     ui->pwm_groupBox->setEnabled(false);
+    ui->dds_groupBox->setEnabled(false);
     ui->connect_pushButton->setText("Подключиться");
 }
 
@@ -72,6 +73,7 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
             ui->adcSpi_pushButton->setEnabled(true);
             ui->clkdistSpi_pushButton->setEnabled(true);
             ui->pwm_groupBox->setEnabled(true);
+            ui->dds_groupBox->setEnabled(true);
 
             ui->connect_pushButton->setText("Отключиться");
             m_connectIndicator->setColor(Qt::green);
@@ -267,5 +269,23 @@ void MainWindow::on_pwm_checkBox_stateChanged(int state)
                               "Ошибка",
                               QString("Ошибка при установке параметров ШИМ(%1)").arg(e.GetErrorMessage()));
 
+    }
+}
+
+void MainWindow::on_dds_pushButton_clicked(bool checked)
+{
+    Q_UNUSED(checked)
+
+    try {
+        unsigned freq = static_cast<unsigned>(ui->ddsFreq_spinBox->value());
+        unsigned amp = static_cast<unsigned>(ui->ddsAmp_spinBox->value());
+
+        m_digitizer->SetDDSFreq(freq);
+        m_digitizer->SetDDSAmp(amp);
+
+    } catch (DigitizerException e) {
+        QMessageBox::critical(this,
+                              "Ошибка",
+                              QString("Ошибка при установке параметров DDS (%1)").arg(e.GetErrorMessage()));
     }
 }

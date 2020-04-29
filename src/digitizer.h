@@ -74,6 +74,14 @@ public:
 
     void SetPwmDC(unsigned dc);
     unsigned GetPwmDC();
+
+    // Set/Get frequency in MHz
+    void SetDDSFreq(unsigned freq);
+    unsigned GetDDSFreq();
+
+    // Set/Get amplitude in mV
+    void SetDDSAmp(unsigned value);
+    unsigned GetDDSAmp();
 };
 
 #endif // DIGITIZER_H

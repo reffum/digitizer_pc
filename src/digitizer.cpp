@@ -219,3 +219,39 @@ unsigned Digitizer::GetPwmDC()
         throw DigitizerException(e.getMessage());
     }
 }
+
+void Digitizer::SetDDSFreq(unsigned int freq)
+{
+    try {
+        Modbus::WriteRegister(DDS_FREQ, static_cast<quint16>(freq));
+    } catch (ModbusException e) {
+        throw DigitizerException(e.getMessage());
+    }
+}
+
+unsigned Digitizer::GetDDSFreq()
+{
+    try {
+        return Modbus::ReadRegister(DDS_FREQ);
+    } catch (ModbusException e) {
+        throw DigitizerException(e.getMessage());
+    }
+}
+
+void Digitizer::SetDDSAmp(unsigned int value)
+{
+    try {
+        Modbus::WriteRegister(DDS_AMP, static_cast<quint16>(value));
+    } catch (ModbusException e) {
+        throw DigitizerException(e.getMessage());
+    }
+}
+
+unsigned Digitizer::GetDDSAmp()
+{
+    try {
+        return Modbus::ReadRegister(DDS_AMP);
+    } catch (ModbusException e) {
+        throw DigitizerException(e.getMessage());
+    }
+}

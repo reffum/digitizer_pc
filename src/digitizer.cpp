@@ -223,7 +223,13 @@ unsigned Digitizer::GetPwmDC()
 void Digitizer::SetDDSFreq(unsigned int freq)
 {
     try {
-        Modbus::WriteRegister(DDS_FREQ, static_cast<quint16>(freq));
+        quint16 freq_h, freq_l;
+
+        freq_h = (freq >> 16);
+        freq_l = freq & 0xFFFF;
+
+        Modbus::WriteRegister(DDS_FREQ_H, freq_h);
+        Modbus::WriteRegister(DDS_FREQ_H, freq_l);
     } catch (ModbusException e) {
         throw DigitizerException(e.getMessage());
     }
@@ -232,7 +238,13 @@ void Digitizer::SetDDSFreq(unsigned int freq)
 unsigned Digitizer::GetDDSFreq()
 {
     try {
-        return Modbus::ReadRegister(DDS_FREQ);
+        unsigned freq, freq_l, freq_h;
+
+        freq_h = Modbus::ReadRegister(DDS_FREQ_H);
+        freq_l = Modbus::ReadRegister(DDS_FREQ_L);
+        freq = (freq_h << 16) | freq_l;
+
+        return freq;
     } catch (ModbusException e) {
         throw DigitizerException(e.getMessage());
     }

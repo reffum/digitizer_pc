@@ -75,7 +75,7 @@ public:
     void SetPwmDC(unsigned dc);
     unsigned GetPwmDC();
 
-    // Set/Get frequency in MHz
+    // Set/Get frequency in Hz
     void SetDDSFreq(unsigned freq);
     unsigned GetDDSFreq();
 

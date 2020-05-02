@@ -99,6 +99,8 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
 
             ui->pwmFreq_spinBox->setValue(static_cast<int>(m_digitizer->GetPwmFreq()));
             ui->pwmDC_spinBox->setValue(static_cast<int>(m_digitizer->GetPwmDC()));
+            ui->ddsFreq_spinBox->setValue(static_cast<int>(m_digitizer->GetDDSFreq()));
+            ui->ddsAmp_spinBox->setValue(static_cast<int>(m_digitizer->GetDDSAmp()));
         }
         else
         {

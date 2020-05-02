@@ -229,7 +229,7 @@ void Digitizer::SetDDSFreq(unsigned int freq)
         freq_l = freq & 0xFFFF;
 
         Modbus::WriteRegister(DDS_FREQ_H, freq_h);
-        Modbus::WriteRegister(DDS_FREQ_H, freq_l);
+        Modbus::WriteRegister(DDS_FREQ_L, freq_l);
     } catch (ModbusException e) {
         throw DigitizerException(e.getMessage());
     }

@@ -82,6 +82,8 @@ public:
     // Set/Get amplitude in mV
     void SetDDSAmp(unsigned value);
     unsigned GetDDSAmp();
+
+    void WriteIoExpander(quint8 addr, quint8 data);
 };
 
 #endif // DIGITIZER_H

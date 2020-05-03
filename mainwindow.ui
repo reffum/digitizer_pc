@@ -177,6 +177,16 @@
      </widget>
     </item>
     <item>
+     <widget class="QPushButton" name="ioExp_pushButton">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>Запись в I/O Expander</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QGroupBox" name="pwm_groupBox">
       <property name="enabled">
        <bool>false</bool>

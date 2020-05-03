@@ -22,6 +22,7 @@ const quint16 PWM_CONTROL = 14;
 const quint16 DDS_FREQ_H = 15;
 const quint16 DDS_FREQ_L = 16;
 const quint16 DDS_AMP = 17;
+const quint16 IO_EXP_REG = 18;
 
 const quint16 _CR_START = 1;
 const quint16 _CR_TEST = 2;

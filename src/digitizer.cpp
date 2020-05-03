@@ -267,3 +267,15 @@ unsigned Digitizer::GetDDSAmp()
         throw DigitizerException(e.getMessage());
     }
 }
+
+void Digitizer::WriteIoExpander(quint8 addr, quint8 data)
+{
+    try {
+        quint16 word = data;
+        word |= static_cast<quint16>(addr) << 8;
+
+        Modbus::WriteRegister(IO_EXP_REG, word);
+    } catch (ModbusException e) {
+        throw DigitizerException(e.getMessage());
+    }
+}

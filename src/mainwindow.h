@@ -42,5 +42,6 @@ private slots:
     void on_pwm_pushButton_clicked(bool checked = false);
     void on_pwm_checkBox_stateChanged(int state);
     void on_dds_pushButton_clicked(bool checked = false);
+    void on_ioExp_pushButton_clicked(bool checked = false);
 };
 #endif // MAINWINDOW_H

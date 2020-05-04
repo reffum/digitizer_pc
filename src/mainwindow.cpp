@@ -48,6 +48,7 @@ void MainWindow::Disconnect()
     m_connectIndicator->setColor(Qt::red);
     ui->save_action->setEnabled(false);
     ui->test_checkBox->setEnabled(false);
+    ui->ioExp_pushButton->setEnabled(false);
     ui->adcSpi_pushButton->setEnabled(false);
     ui->clkdistSpi_pushButton->setEnabled(false);
     ui->pwm_groupBox->setEnabled(false);
@@ -72,6 +73,7 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
             ui->save_action->setEnabled(true);
             ui->adcSpi_pushButton->setEnabled(true);
             ui->clkdistSpi_pushButton->setEnabled(true);
+            ui->ioExp_pushButton->setEnabled(true);
             ui->pwm_groupBox->setEnabled(true);
             ui->dds_groupBox->setEnabled(true);
 
@@ -146,7 +148,7 @@ void MainWindow::on_save_pushButton_clicked(bool checked)
 
     QFile file(fileName);
 
-    if(!file.open(QIODevice::ReadWrite))
+    if(!file.open(QIODevice::ReadWrite | QIODevice::Truncate))
     {
         QMessageBox::critical(this, "Ошибка", "Невозможно создать файл");
         return;
@@ -178,7 +180,7 @@ void MainWindow::on_save_action_triggered(bool checked)
 
     QFile file(fileName);
 
-    if(!file.open(QIODevice::ReadWrite))
+    if(!file.open(QIODevice::ReadWrite | QIODevice::Truncate))
     {
         QMessageBox::critical(this, "Ошибка", "Невозможно создать файл");
         return;
@@ -289,5 +291,20 @@ void MainWindow::on_dds_pushButton_clicked(bool checked)
         QMessageBox::critical(this,
                               "Ошибка",
                               QString("Ошибка при установке параметров DDS (%1)").arg(e.GetErrorMessage()));
+    }
+}
+
+void MainWindow::on_ioExp_pushButton_clicked(bool checked)
+{
+    Q_UNUSED(checked)
+
+    try {
+        // Write to OLATA and OLATB registers
+        m_digitizer->WriteIoExpander(0x0A, 0);
+        m_digitizer->WriteIoExpander(0x1A, 0);
+    } catch (DigitizerException e) {
+        QMessageBox::critical(this,
+                              "Ошибка",
+                              QString("Ошибка при записи в I/O Expander (%1)").arg(e.GetErrorMessage()));
     }
 }

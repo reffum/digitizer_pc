@@ -299,9 +299,13 @@ void MainWindow::on_ioExp_pushButton_clicked(bool checked)
     Q_UNUSED(checked)
 
     try {
+        // Set all ports to outputs
+        m_digitizer->WriteIoExpander(0x00, 0x00);
+        m_digitizer->WriteIoExpander(0x01, 0x00);
+
         // Write to OLATA and OLATB registers
-        m_digitizer->WriteIoExpander(0x0A, 0);
-        m_digitizer->WriteIoExpander(0x1A, 0);
+        m_digitizer->WriteIoExpander(0x14, 0xAA);
+        m_digitizer->WriteIoExpander(0x15, 0xAA);
     } catch (DigitizerException e) {
         QMessageBox::critical(this,
                               "Ошибка",

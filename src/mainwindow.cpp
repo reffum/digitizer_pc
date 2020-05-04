@@ -148,7 +148,7 @@ void MainWindow::on_save_pushButton_clicked(bool checked)
 
     QFile file(fileName);
 
-    if(!file.open(QIODevice::ReadWrite))
+    if(!file.open(QIODevice::ReadWrite | QIODevice::Truncate))
     {
         QMessageBox::critical(this, "Ошибка", "Невозможно создать файл");
         return;
@@ -180,7 +180,7 @@ void MainWindow::on_save_action_triggered(bool checked)
 
     QFile file(fileName);
 
-    if(!file.open(QIODevice::ReadWrite))
+    if(!file.open(QIODevice::ReadWrite | QIODevice::Truncate))
     {
         QMessageBox::critical(this, "Ошибка", "Невозможно создать файл");
         return;

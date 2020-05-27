@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>306</width>
-    <height>580</height>
+    <height>692</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -16,11 +16,26 @@
     <height>0</height>
    </size>
   </property>
+  <property name="font">
+   <font>
+    <pointsize>8</pointsize>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>Оцифровщик </string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>images/app.ico</normaloff>images/app.ico</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_2">
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>0</height>
+    </size>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
      <widget class="QGroupBox" name="groupBox">
       <property name="title">
@@ -59,12 +74,18 @@
      </widget>
     </item>
     <item>
-     <widget class="QGroupBox" name="control_groupBox">
+     <widget class="QGroupBox" name="noRealTime_groupBox">
       <property name="enabled">
        <bool>false</bool>
       </property>
       <property name="title">
-       <string>Управление</string>
+       <string>Режим No realtime</string>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+      <property name="checked">
+       <bool>false</bool>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
@@ -88,7 +109,7 @@
             <number>64</number>
            </property>
            <property name="maximum">
-            <number>31744</number>
+            <number>131070</number>
            </property>
            <property name="singleStep">
             <number>64</number>
@@ -101,7 +122,10 @@
             <bool>false</bool>
            </property>
            <property name="text">
-            <string>Запуск приема</string>
+            <string>Старт</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -138,6 +162,74 @@
           <widget class="QPushButton" name="save_pushButton">
            <property name="text">
             <string>Сохранить</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="realTime_groupBox">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="title">
+       <string>Режим Real-Time</string>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <widget class="QPushButton" name="realTime_pushButton">
+           <property name="text">
+            <string>Старт</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QIndicator" name="ovf_indicator" native="true"/>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>Overflow</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <item>
+          <widget class="QLabel" name="framesNum_label">
+           <property name="text">
+            <string>Принято кадров</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLCDNumber" name="rtFrames_lcdNumber">
+           <property name="font">
+            <font>
+             <pointsize>12</pointsize>
+            </font>
+           </property>
+           <property name="digitCount">
+            <number>10</number>
+           </property>
+           <property name="segmentStyle">
+            <enum>QLCDNumber::Flat</enum>
            </property>
           </widget>
          </item>
@@ -215,7 +307,7 @@
           <bool>true</bool>
          </property>
          <property name="minimum">
-          <number>10000</number>
+          <number>1</number>
          </property>
          <property name="maximum">
           <number>15000</number>
@@ -323,13 +415,20 @@
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu">
+   <widget class="QMenu" name="file_menu">
     <property name="title">
      <string>Файл</string>
     </property>
     <addaction name="save_action"/>
    </widget>
-   <addaction name="menu"/>
+   <widget class="QMenu" name="tools_menu">
+    <property name="title">
+     <string>Инструменты</string>
+    </property>
+    <addaction name="fileParser_action"/>
+   </widget>
+   <addaction name="file_menu"/>
+   <addaction name="tools_menu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="save_action">
@@ -340,7 +439,22 @@
     <string>Сохранть данные в файл</string>
    </property>
   </action>
+  <action name="fileParser_action">
+   <property name="text">
+    <string>Конвертер</string>
+   </property>
+  </action>
  </widget>
- <resources/>
+ <customwidgets>
+  <customwidget>
+   <class>QIndicator</class>
+   <extends>QWidget</extends>
+   <header>qindicator.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="Resource.qrc"/>
+ </resources>
  <connections/>
 </ui>

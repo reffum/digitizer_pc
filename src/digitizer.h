@@ -1,8 +1,9 @@
 #ifndef DIGITIZER_H
 #define DIGITIZER_H
 
-#include <QTcpSocket>
+#include <atomic>
 #include <QString>
+#include <QThread>
 #include "digitizerexception.h"
 
 struct Version
@@ -17,9 +18,28 @@ class Digitizer : public QObject
 {
     Q_OBJECT
 
-    QTcpSocket *m_tcpSocket;
     bool m_connectionState;
-    QByteArray m_byteArray;
+
+    // Stop-flags for real-time and no real-time receive data threads
+    bool stopRealTimeThread = false;
+	bool stopNoRealTimeThread = false;
+
+    // Receive data threads
+    QThread *realTimeThread;
+	QThread* noRealTimeThread;
+
+    // Directory for save real-time packets
+    const QString SaveFilePath = "C:/Project/data";
+
+	// IP address
+	QString m_ip;
+
+	// Received data size in no real-time mode
+	size_t noRealTimeSize;
+
+    // Data receive state
+    enum ReceiveState {RECEIVE_NONE, RECEIVE_REAL_TIME, RECEIVE_NO_REAL_TIME};
+    std::atomic<enum ReceiveState> m_receiveState;
 
 public:
     Digitizer(QObject* parent = nullptr);
@@ -33,6 +53,8 @@ public:
     static const unsigned PWM_MIN_DC = 1;
     static const unsigned PWM_MAX_DC = 99;
 
+    int fileNum = 1;
+
     // All methods throw DigitizerException in case of error, if otherwise not specified.
 public:
     // Connect to device
@@ -41,10 +63,6 @@ public:
     // Test mode
     bool GetTestMode();
     void SetTestMode(bool);
-
-    // Start transsmit and receive packet
-    // size in 64 kB
-    void StartReceive(int size);
 
     // Disconnect from device
     void Disconnect();
@@ -84,6 +102,24 @@ public:
     unsigned GetDDSAmp();
 
     void WriteIoExpander(quint8 addr, quint8 data);
+
+	// Start/stop no-realtime receive transsmit and receive 
+	// size in 64 kB
+	void StartReceive(int size);
+	void StopReceive();
+
+    void RealTimeStart();
+    void RealTimeStop();
+
+    int RealTimeFrameNumber();
+    bool RealTimeOverflow();
+
+signals:
+    // Emit in case of data receive or write to file error.
+    void dataReceveError(QString msg);
+
+    // Emit when no real-time data complete
+    void noRealTimeDataReceiveComplete();
 };
 
 #endif // DIGITIZER_H

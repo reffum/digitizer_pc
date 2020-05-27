@@ -2,8 +2,17 @@
 #include <QMessageBox>
 #include <QTimer>
 #include <QFileDialog>
+#include <qsettings>
+#include <QCloseEvent>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "FileParserDialog.h"
+
+const QString OrganizationName = "ITMO";
+const QString ApplicationName = "Digitizer";
+
+// Settings keys
+const QString SettingsKeyRealTime = "RealTime";
 
 // The path where file is saved, when user push button "Сохранить"
 const QString DefaultSaveFile = "C:/Project/1.dat";
@@ -14,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
       m_digitizer(nullptr)
 {
     ui->setupUi(this);
-    setFixedSize(300, 580);
+    setFixedSize(310, 700);
 
     m_connectIndicator = new QIndicator(this);
     m_connectIndicator->setColor(Qt::red);
@@ -22,6 +31,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Add tooltip for "Сохранить" button
     ui->save_pushButton->setToolTip(QString("Сохранить в файл %1").arg(DefaultSaveFile));
+
+    ui->ovf_indicator->setColor(Qt::green);
 
     m_versionLabel = new QLabel(this);
     statusBar()->addWidget(m_versionLabel);
@@ -33,10 +44,57 @@ MainWindow::MainWindow(QWidget *parent)
     updateTimer->start();
 
     m_digitizer = new Digitizer(this);
+    connect(m_digitizer, SIGNAL(dataReceveError(QString)), this, SLOT(m_digitizer_saveFileError(QString)));
+
+    connect(m_digitizer, SIGNAL(noRealTimeDataReceiveComplete()),
+        this, SLOT(m_digitizer_noRealTimeDataReceiveComplete()));
+
+
+    readSettings();
+}
+
+void MainWindow::readSettings()
+{
+    QSettings settings(OrganizationName, ApplicationName);
+
+    bool realTime = settings.value(SettingsKeyRealTime).toBool();
+
+    QSignalBlocker b0(ui->noRealTime_groupBox);
+    QSignalBlocker b1(ui->realTime_groupBox);
+
+    if (!realTime)
+    {
+        ui->noRealTime_groupBox->setChecked(true);
+        ui->realTime_groupBox->setChecked(false);
+    }
+    else
+    {
+        ui->noRealTime_groupBox->setChecked(false);
+        ui->realTime_groupBox->setChecked(true);
+    }
+}
+
+void MainWindow::writeSettings()
+{
+    QSettings settings(OrganizationName, ApplicationName);
+
+    bool realTime = ui->realTime_groupBox->isChecked();
+
+    settings.setValue(SettingsKeyRealTime, realTime);
+}
+
+void MainWindow::closeEvent(QCloseEvent* e)
+{
+    writeSettings();
+
+    m_digitizer->Disconnect();
+
+    e->accept();
 }
 
 MainWindow::~MainWindow()
 {
+    delete m_digitizer;
     delete ui;
 }
 
@@ -44,7 +102,8 @@ void MainWindow::Disconnect()
 {
     ui->size_spinBox->setEnabled(false);
     ui->start_pushButton->setEnabled(false);
-    ui->control_groupBox->setEnabled(false);
+    ui->noRealTime_groupBox->setEnabled(false);
+    ui->realTime_groupBox->setEnabled(false);
     m_connectIndicator->setColor(Qt::red);
     ui->save_action->setEnabled(false);
     ui->test_checkBox->setEnabled(false);
@@ -54,6 +113,9 @@ void MainWindow::Disconnect()
     ui->pwm_groupBox->setEnabled(false);
     ui->dds_groupBox->setEnabled(false);
     ui->connect_pushButton->setText("Подключиться");
+
+    ui->realTime_pushButton->setChecked(true);
+    ui->realTime_pushButton->setText("Старт");
 }
 
 void MainWindow::on_connect_pushButton_clicked(bool checked)
@@ -68,7 +130,8 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
 
             ui->size_spinBox->setEnabled(true);
             ui->start_pushButton->setEnabled(true);
-            ui->control_groupBox->setEnabled(true);
+            ui->noRealTime_groupBox->setEnabled(true);
+            ui->realTime_groupBox->setEnabled(true);
             ui->test_checkBox->setEnabled(true);
             ui->save_action->setEnabled(true);
             ui->adcSpi_pushButton->setEnabled(true);
@@ -103,6 +166,10 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
             ui->pwmDC_spinBox->setValue(static_cast<int>(m_digitizer->GetPwmDC()));
             ui->ddsFreq_spinBox->setValue(static_cast<int>(m_digitizer->GetDDSFreq()));
             ui->ddsAmp_spinBox->setValue(static_cast<int>(m_digitizer->GetDDSAmp()));
+
+            QSignalBlocker realTime_pushButtonBlocker(ui->realTime_pushButton);
+            ui->realTime_pushButton->setChecked(false);
+            ui->realTime_pushButton->setText("Старт");
         }
         else
         {
@@ -116,28 +183,73 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
     }
 }
 
+void MainWindow::on_realTime_groupBox_toggled(bool on)
+{
+    QSignalBlocker blocker(ui->noRealTime_groupBox);
+
+    if (on)
+    {
+        m_digitizer->StopReceive();
+        ui->noRealTime_groupBox->setChecked(false);
+    }
+}
+
+void MainWindow::on_noRealTime_groupBox_toggled(bool on)
+{
+    QSignalBlocker blocker(ui->realTime_groupBox);
+    if (on)
+    {
+        m_digitizer->RealTimeStop();
+        ui->noRealTime_groupBox->setChecked(true);
+        ui->realTime_groupBox->setChecked(false);
+    }
+}
+
 void MainWindow::on_start_pushButton_clicked(bool checked)
 {
-    Q_UNUSED(checked)
+    if (checked)
+    {
 
-    try {
-        int size = ui->size_spinBox->value();
+        try {
+            int size = ui->size_spinBox->value();
 
-        if(size < Digitizer::MinDataSize)
-        {
-            QMessageBox::warning(this, "Ошибка", "Размер данных должен быть больше 64 кБ");
-            return;
+            if (size < Digitizer::MinDataSize)
+            {
+                QMessageBox::warning(this, "Ошибка", "Размер данных должен быть больше 64 кБ");
+                return;
+            }
+
+            size = size - (size % ui->size_spinBox->singleStep());
+            ui->size_spinBox->setValue(size);
+
+            m_digitizer->StartReceive(size);
+
+            // Disable "Старт" button.
+            ui->start_pushButton->setText("Стоп");
+            ui->save_pushButton->setEnabled(false);
+            ui->save_action->setEnabled(false);
         }
-
-        size = size - (size % ui->size_spinBox->singleStep());
-        ui->size_spinBox->setValue(size);
-
-        m_digitizer->StartReceive(size);
-
-    } catch (DigitizerException e) {
-        QMessageBox::critical(this, "Ошибка", e.GetErrorMessage());
-        Disconnect();
+        catch (DigitizerException e) {
+            QMessageBox::critical(this, "Ошибка", e.GetErrorMessage());
+            Disconnect();
+        }
     }
+    else
+    {
+        m_digitizer->StopReceive();
+        ui->save_pushButton->setEnabled(true);
+        ui->save_action->setEnabled(true);
+        ui->start_pushButton->setText("Старт");
+    }
+}
+
+void MainWindow::m_digitizer_noRealTimeDataReceiveComplete()
+{
+    QSignalBlocker b(ui->start_pushButton);
+
+    ui->start_pushButton->setChecked(false);
+    ui->start_pushButton->setText("Старт");
+    ui->save_pushButton->setEnabled(true);
 }
 
 void MainWindow::on_save_pushButton_clicked(bool checked)
@@ -166,8 +278,26 @@ void MainWindow::on_save_pushButton_clicked(bool checked)
 
 void MainWindow::updateTimer_timeout()
 {
-    qint64 receiveSize = m_digitizer->GetDataSize();
-    ui->receiveSize_lcdNumber->display(static_cast<int>(receiveSize));
+    try {
+        qint64 receiveSize = m_digitizer->GetDataSize();
+        ui->receiveSize_lcdNumber->display(static_cast<int>(receiveSize));
+
+        if (m_digitizer->GetConnectionState())
+        {
+            ui->rtFrames_lcdNumber->display(m_digitizer->RealTimeFrameNumber());
+
+            if (m_digitizer->RealTimeOverflow())
+                ui->ovf_indicator->setColor(Qt::red);
+            else
+                ui->ovf_indicator->setColor(Qt::green);
+        }
+    }
+    catch (DigitizerException e)
+    {
+        QMessageBox::critical(this, "Ошибка", e.GetErrorMessage());
+        Disconnect();
+        m_digitizer->Disconnect();
+    }
 }
 
 void MainWindow::on_save_action_triggered(bool checked)
@@ -194,6 +324,14 @@ void MainWindow::on_save_action_triggered(bool checked)
     {
         QMessageBox::critical(this, "Ошибка", "Ошибка при записи данных в файл");
     }
+}
+
+void MainWindow::on_fileParser_action_triggered(bool checked)
+{
+    Q_UNUSED(checked);
+
+	FileParserDialog* dialog = new FileParserDialog(this);
+	dialog->show();
 }
 
 void MainWindow::on_test_checkBox_stateChanged(int state)
@@ -310,5 +448,58 @@ void MainWindow::on_ioExp_pushButton_clicked(bool checked)
         QMessageBox::critical(this,
                               "Ошибка",
                               QString("Ошибка при записи в I/O Expander (%1)").arg(e.GetErrorMessage()));
+    }
+}
+
+void MainWindow::on_realTime_pushButton_clicked(bool checked)
+{
+    try {
+        if(checked)
+        {
+            // Program in real-time receive mode
+            m_digitizer->RealTimeStart();
+            ui->realTime_pushButton->setText("Стоп");
+        }
+        else
+        {
+            m_digitizer->RealTimeStop();
+            ui->realTime_pushButton->setText("Старт");
+        }
+    } catch (DigitizerException e) {
+        QMessageBox::critical(this,
+                              "Ошибка",
+                              QString("Ошибка при установке режима Real-Time (%1)").arg(e.GetErrorMessage()));
+    }
+}
+
+void MainWindow::m_digitizer_saveFileError(QString msg)
+{
+    // Error processing depend on current mode, no real-time or real-time
+
+    if (ui->realTime_groupBox->isChecked())
+    {
+        // Real-time mode
+        QSignalBlocker(ui->realTime_pushButton);
+
+        QMessageBox::critical(this,
+            "Ошибка",
+            msg);
+
+        ui->realTime_pushButton->setChecked(false);
+        ui->realTime_pushButton->setText("Старт");
+    }
+    else
+    {
+        // No realtime mode
+        QSignalBlocker b(ui->noRealTime_groupBox);
+
+        QMessageBox::critical(this,
+            "Ошибка",
+            msg);
+
+        ui->start_pushButton->setChecked(true);
+        ui->start_pushButton->setText("Старт");
+        ui->save_pushButton->setEnabled(true);
+        ui->save_action->setEnabled(true);
     }
 }

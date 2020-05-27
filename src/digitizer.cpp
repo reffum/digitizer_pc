@@ -1,22 +1,26 @@
-#include <QNetworkDatagram>
+#include <string>
+#include <QDebug>
+#include <QFile>
 #include "digitizer.h"
 #include "digitizerexception.h"
 #include "modbus.h"
+#include "dataReceiver.h"
+
+using namespace std;
 
 const int TCP_DATA_PORT = 1024;
 
 Digitizer::Digitizer(QObject* parent):
-    m_tcpSocket(nullptr), m_connectionState(false)
+    m_connectionState(false), noRealTimeSize(0), noRealTimeThread(nullptr), 
+    realTimeThread(nullptr)
 {
-    Q_UNUSED(parent)
-
-    /* Create and connect to device for receive UDP data */
-    m_tcpSocket = new QTcpSocket(this);
+    Q_UNUSED(parent);
+    m_receiveState = RECEIVE_NONE;
 }
 
 Digitizer::~Digitizer()
 {
-    delete m_tcpSocket;
+	
 }
 
 void Digitizer::Connect(QString ip)
@@ -30,7 +34,7 @@ void Digitizer::Connect(QString ip)
             throw DigitizerException("ID устройства неверное");
         }
 
-        m_tcpSocket->connectToHost(QHostAddress(ip), TCP_DATA_PORT);
+		m_ip = ip;
         m_connectionState = true;
 
     } catch (ModbusException e) {
@@ -40,9 +44,25 @@ void Digitizer::Connect(QString ip)
 
 void Digitizer::Disconnect()
 {
-    Modbus::Disconnect();
-    m_tcpSocket->disconnectFromHost();
-    m_connectionState = false;
+    try {
+        if (m_receiveState == RECEIVE_NO_REAL_TIME)
+        {
+            StopReceive();
+        }
+        else if (m_receiveState == RECEIVE_REAL_TIME)
+        {
+            RealTimeStop();
+        }
+        
+        Modbus::Disconnect();
+
+        m_connectionState = false;
+    }
+    catch (DigitizerException e)
+    {
+        qDebug() << "Digitizer::Disconnect() exceptin: " << e.GetErrorMessage();
+    }
+    
 }
 
 void Digitizer::SetTestMode(bool b)
@@ -72,29 +92,18 @@ bool Digitizer::GetTestMode()
     }
 }
 
-void Digitizer::StartReceive(int size)
-{
-    try {
-        Modbus::WriteRegister(DSIZE, static_cast<quint16>(size >> 6));
-
-        quint16 cr = Modbus::ReadRegister(CR);
-        cr |= _CR_START;
-        Modbus::WriteRegister(CR, cr);
-
-    } catch (ModbusException e) {
-        Disconnect();
-        throw DigitizerException(e.getMessage());
-    }
-}
+extern uint8_t ReceiveBuffer[];
 
 QByteArray Digitizer::GetData()
 {
-    return m_tcpSocket->readAll();
+    size_t s = noRealTimeSize;
+    noRealTimeSize = 0;
+	return QByteArray((char*)ReceiveBuffer, s);
 }
 
 qint64 Digitizer::GetDataSize()
 {
-    return m_tcpSocket->size();
+	return noRealTimeSize;
 }
 
 bool Digitizer::GetConnectionState()
@@ -275,6 +284,142 @@ void Digitizer::WriteIoExpander(quint8 addr, quint8 data)
         word |= static_cast<quint16>(addr) << 8;
 
         Modbus::WriteRegister(IO_EXP_REG, word);
+    } catch (ModbusException e) {
+        throw DigitizerException(e.getMessage());
+    }
+}
+
+void Digitizer::StartReceive(int size)
+{
+    Q_ASSERT(m_receiveState == RECEIVE_NONE);
+
+	noRealTimeSize = 0;
+
+	noRealTimeThread = QThread::create(
+		[=]()
+		{
+			try {
+				string ipStr = m_ip.toStdString();
+				ReceiveNoRealTimeData(ipStr.c_str(), TCP_DATA_PORT, size * 1024, stopNoRealTimeThread, noRealTimeSize);
+                emit noRealTimeDataReceiveComplete();
+			}
+			catch (exception e)
+			{
+				emit dataReceveError(e.what());
+			}
+
+            m_receiveState = RECEIVE_NONE;
+		}
+	);
+
+	try {
+		stopNoRealTimeThread = false;
+
+        //TODO: Take out in separate method with separate button.
+        m_receiveState = RECEIVE_NO_REAL_TIME;
+		noRealTimeThread->start();
+
+		Modbus::WriteRegister(DSIZE, static_cast<quint16>(size >> 6));
+		quint16 cr = Modbus::ReadRegister(CR);
+
+		cr |= _CR_START;
+		Modbus::WriteRegister(CR, cr);        
+	}
+	catch (ModbusException e) {
+        // Stop the thread
+		stopNoRealTimeThread = true;
+        noRealTimeThread->wait();
+
+        Q_ASSERT(m_receiveState == RECEIVE_NONE);
+
+        Disconnect();
+
+		throw DigitizerException(e.getMessage());
+	}
+}
+
+void Digitizer::StopReceive()
+{
+    if (m_receiveState == RECEIVE_NONE)
+        return;
+
+    Q_ASSERT(m_receiveState != RECEIVE_REAL_TIME);
+    
+    // Stop thread
+	stopNoRealTimeThread = true;
+	noRealTimeThread->wait();
+    delete noRealTimeThread;
+}
+
+void Digitizer::RealTimeStart()
+{
+    stopRealTimeThread = false;
+
+	realTimeThread = QThread::create(
+		[=]()
+		{
+			try {
+				string ipStr = m_ip.toStdString();
+				fileNum = 0;
+				ReceiveRealTimeData(ipStr.c_str(), TCP_DATA_PORT, stopRealTimeThread, fileNum);
+			}
+			catch (exception e)
+			{
+				emit dataReceveError(e.what());
+			}
+
+            // Disable real-time data send
+            // Ignore possible MODBUS errors
+            try {
+                quint16 cr = Modbus::ReadRegister(CR);
+                cr &= ~(_CR_RT);
+                Modbus::WriteRegister(CR, cr);
+            }
+            catch (ModbusException e)
+            {
+                qDebug() << "Modbus Error in realTimeThread: " << e.getMessage();
+            }
+            
+            m_receiveState = RECEIVE_NONE;
+		}
+	);
+
+    try {
+		Modbus::WriteRegister(CR, _CR_RT);
+    } catch (ModbusException e) {
+        throw DigitizerException(e.getMessage());
+    }
+
+    m_receiveState = RECEIVE_REAL_TIME;
+    realTimeThread->start();
+}
+
+void Digitizer::RealTimeStop()
+{
+    if (m_receiveState != RECEIVE_REAL_TIME)
+        return;
+
+    try {    
+        stopRealTimeThread = true;
+        realTimeThread->wait();
+        delete realTimeThread;
+
+        Q_ASSERT(m_receiveState == RECEIVE_NONE);
+
+    } catch (ModbusException e) {
+        throw DigitizerException(e.getMessage());
+    }
+}
+
+int Digitizer::RealTimeFrameNumber()
+{
+    return fileNum;
+}
+
+bool Digitizer::RealTimeOverflow()
+{
+    try {
+        return Modbus::ReadRegister(SR) & _SR_RT_OVF;
     } catch (ModbusException e) {
         throw DigitizerException(e.getMessage());
     }

@@ -30,18 +30,31 @@ private:
 
     void Disconnect();
 
+    void readSettings();
+    void writeSettings();
+
+    void closeEvent(QCloseEvent* event);
+
 private slots:
+	// Menu
+	void on_save_action_triggered(bool checked = false);
+	void on_fileParser_action_triggered(bool checked = false);
     void on_connect_pushButton_clicked(bool checked = false);
+    void on_noRealTime_groupBox_toggled(bool);
+    void on_realTime_groupBox_toggled(bool);
     void on_start_pushButton_clicked(bool checked = false);
     void on_save_pushButton_clicked(bool checked = false);
     void on_test_checkBox_stateChanged(int state);
-    void updateTimer_timeout();
-    void on_save_action_triggered(bool checked = false);
+    void updateTimer_timeout();    
     void on_adcSpi_pushButton_clicked(bool checked = false);
     void on_clkdistSpi_pushButton_clicked(bool checked = false);
     void on_pwm_pushButton_clicked(bool checked = false);
     void on_pwm_checkBox_stateChanged(int state);
     void on_dds_pushButton_clicked(bool checked = false);
     void on_ioExp_pushButton_clicked(bool checked = false);
+    void on_realTime_pushButton_clicked(bool checked = false);
+	
+    void m_digitizer_saveFileError(QString msg);
+    void m_digitizer_noRealTimeDataReceiveComplete();
 };
 #endif // MAINWINDOW_H

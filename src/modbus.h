@@ -26,6 +26,7 @@ const quint16 IO_EXP_REG = 18;
 
 const quint16 _CR_START = 1;
 const quint16 _CR_TEST = 2;
+const quint16 _CR_RT = 4;
 
 const quint16 _PWM_CONTROL_ENABLE = 1;
 

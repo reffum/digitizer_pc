@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>306</width>
-    <height>580</height>
+    <height>752</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -20,7 +20,7 @@
    <string>Оцифровщик </string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_2">
+   <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
      <widget class="QGroupBox" name="groupBox">
       <property name="title">
@@ -59,12 +59,15 @@
      </widget>
     </item>
     <item>
-     <widget class="QGroupBox" name="control_groupBox">
+     <widget class="QGroupBox" name="noRealTime_groupBox">
       <property name="enabled">
        <bool>false</bool>
       </property>
       <property name="title">
-       <string>Управление</string>
+       <string>Режим No realtime</string>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
@@ -138,6 +141,60 @@
           <widget class="QPushButton" name="save_pushButton">
            <property name="text">
             <string>Сохранить</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="realTime_groupBox">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="title">
+       <string>Режим Real-Time</string>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+      <property name="checked">
+       <bool>false</bool>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QPushButton" name="realTime_pushButton">
+         <property name="text">
+          <string>Старт</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <item>
+          <widget class="QLabel" name="framesNum_label">
+           <property name="text">
+            <string>Принято кадров</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLCDNumber" name="rtFrames_lcdNumber">
+           <property name="font">
+            <font>
+             <pointsize>12</pointsize>
+            </font>
+           </property>
+           <property name="digitCount">
+            <number>10</number>
+           </property>
+           <property name="segmentStyle">
+            <enum>QLCDNumber::Flat</enum>
            </property>
           </widget>
          </item>

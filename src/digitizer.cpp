@@ -1,22 +1,25 @@
 #include <QNetworkDatagram>
+#include <QFile>
 #include "digitizer.h"
 #include "digitizerexception.h"
 #include "modbus.h"
 
 const int TCP_DATA_PORT = 1024;
+const int TCP_SIZE_PORT = 1025;
+
 
 Digitizer::Digitizer(QObject* parent):
-    m_tcpSocket(nullptr), m_connectionState(false)
+    m_dataSocket(nullptr), m_connectionState(false)
 {
     Q_UNUSED(parent)
 
-    /* Create and connect to device for receive UDP data */
-    m_tcpSocket = new QTcpSocket(this);
+    m_dataSocket = new QTcpSocket(this);
+    m_sizeSocket = new QTcpSocket(this);
 }
 
 Digitizer::~Digitizer()
 {
-    delete m_tcpSocket;
+    delete m_dataSocket;
 }
 
 void Digitizer::Connect(QString ip)
@@ -30,7 +33,8 @@ void Digitizer::Connect(QString ip)
             throw DigitizerException("ID устройства неверное");
         }
 
-        m_tcpSocket->connectToHost(QHostAddress(ip), TCP_DATA_PORT);
+        m_dataSocket->connectToHost(QHostAddress(ip), TCP_DATA_PORT);
+        m_sizeSocket->connectToHost(QHostAddress(ip), TCP_SIZE_PORT);
         m_connectionState = true;
 
     } catch (ModbusException e) {
@@ -41,7 +45,8 @@ void Digitizer::Connect(QString ip)
 void Digitizer::Disconnect()
 {
     Modbus::Disconnect();
-    m_tcpSocket->disconnectFromHost();
+    m_dataSocket->disconnectFromHost();
+    m_sizeSocket->disconnectFromHost();
     m_connectionState = false;
 }
 
@@ -89,12 +94,12 @@ void Digitizer::StartReceive(int size)
 
 QByteArray Digitizer::GetData()
 {
-    return m_tcpSocket->readAll();
+    return m_dataSocket->readAll();
 }
 
 qint64 Digitizer::GetDataSize()
 {
-    return m_tcpSocket->size();
+    return m_dataSocket->size();
 }
 
 bool Digitizer::GetConnectionState()
@@ -275,6 +280,99 @@ void Digitizer::WriteIoExpander(quint8 addr, quint8 data)
         word |= static_cast<quint16>(addr) << 8;
 
         Modbus::WriteRegister(IO_EXP_REG, word);
+    } catch (ModbusException e) {
+        throw DigitizerException(e.getMessage());
+    }
+}
+
+void Digitizer::RealTimeStart()
+{
+    stopRealTimeThread = false;
+
+    realTimeThread = QThread::create(
+                [=]()
+    {
+        const int WAIT_TIMEOUT = 1;
+        int fileNum = 1;
+
+        // Size of next data packet
+        quint32 lastPacketSize = 0;
+
+        while(true)
+        {
+            // Wait for new packet size received
+            while(true)
+            {
+                qint64 numBytes = m_sizeSocket->bytesAvailable();
+                if(numBytes >= 4)
+                {
+                    break;
+                }
+
+                if(stopRealTimeThread)
+                    return;
+
+                QThread::sleep(WAIT_TIMEOUT);
+            }
+
+            // Read packet size
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wold-style-cast"
+            m_sizeSocket->read((char*)&lastPacketSize, 4);
+    #pragma GCC diagnostic pop
+
+
+            // Receive data from data TCP connection
+            while(true)
+            {
+                qint64 numBytes = m_dataSocket->bytesAvailable();
+                if(numBytes >= lastPacketSize)
+                {
+                    break;
+                }
+
+                if(stopRealTimeThread)
+                    return;
+            }
+
+            QByteArray data = m_dataSocket->readAll();
+
+            // Save data to file
+            QString fileName = SaveFilePath + QString(fileNum) + ".dat";
+            QFile file(fileName);
+
+            if( !file.open(QIODevice::ReadWrite | QIODevice::Truncate) )
+            {
+                emit saveFileError(QString("Ошибка при попытке открыть или создать файл %1").arg(fileName));
+                return;
+            }
+
+            if(file.write(data) != data.size())
+            {
+                emit saveFileError(QString("Ошибка при записи данных в файл %1").arg(fileName));
+                return;
+            }
+
+            fileNum++;
+        }
+    });
+
+    try {
+       Modbus::WriteRegister(CR, _CR_RT);
+    } catch (ModbusException e) {
+        throw DigitizerException(e.getMessage());
+    }
+
+    realTimeThread->start();
+}
+
+void Digitizer::RealTimeStop()
+{
+    try {
+        stopRealTimeThread = true;
+        realTimeThread->wait();
+
+        Modbus::WriteRegister(CR, 0);
     } catch (ModbusException e) {
         throw DigitizerException(e.getMessage());
     }

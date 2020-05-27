@@ -3,6 +3,7 @@
 
 #include <QTcpSocket>
 #include <QString>
+#include <QThread>
 #include "digitizerexception.h"
 
 struct Version
@@ -17,9 +18,17 @@ class Digitizer : public QObject
 {
     Q_OBJECT
 
-    QTcpSocket *m_tcpSocket;
+    QTcpSocket *m_dataSocket;
+    QTcpSocket *m_sizeSocket;
+
     bool m_connectionState;
     QByteArray m_byteArray;
+
+    bool stopRealTimeThread = false;
+    QThread *realTimeThread;
+
+    // Directory for save real-time packets
+    const QString SaveFilePath = "C:/Project";
 
 public:
     Digitizer(QObject* parent = nullptr);
@@ -84,6 +93,12 @@ public:
     unsigned GetDDSAmp();
 
     void WriteIoExpander(quint8 addr, quint8 data);
+
+    void RealTimeStart();
+    void RealTimeStop();
+
+signals:
+    void saveFileError(QString msg);
 };
 
 #endif // DIGITIZER_H

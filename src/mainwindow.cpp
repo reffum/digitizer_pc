@@ -14,7 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
       m_digitizer(nullptr)
 {
     ui->setupUi(this);
-    setFixedSize(310, 760);
+    setFixedSize(310, 670);
 
     m_connectIndicator = new QIndicator(this);
     m_connectIndicator->setColor(Qt::red);

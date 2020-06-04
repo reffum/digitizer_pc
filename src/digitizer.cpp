@@ -338,7 +338,7 @@ void Digitizer::RealTimeStart()
             QByteArray data = m_dataSocket->readAll();
 
             // Save data to file
-            QString fileName = SaveFilePath + QString(fileNum) + ".dat";
+            QString fileName = SaveFilePath + QString("/") + QString("%1").arg(fileNum) + ".dat";
             QFile file(fileName);
 
             if( !file.open(QIODevice::ReadWrite | QIODevice::Truncate) )

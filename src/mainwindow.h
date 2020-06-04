@@ -45,6 +45,6 @@ private slots:
     void on_ioExp_pushButton_clicked(bool checked = false);
     void on_realTime_pushButton_clicked(bool checked = false);
 
-    void on_m_digitizer_saveFileError(QString msg);
+    void m_digitizer_saveFileError(QString msg);
 };
 #endif // MAINWINDOW_H

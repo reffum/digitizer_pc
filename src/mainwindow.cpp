@@ -32,9 +32,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateTimer_timeout()));
     updateTimer->start();
 
-    connect(m_digitizer, SIGNAL(saveFileError()), this, SLOT(on_m_digitizer_saveFileError));
-
     m_digitizer = new Digitizer(this);
+    connect(m_digitizer, SIGNAL(saveFileError(QString)), this, SLOT(m_digitizer_saveFileError(QString)));
 }
 
 MainWindow::~MainWindow()
@@ -47,6 +46,7 @@ void MainWindow::Disconnect()
     ui->size_spinBox->setEnabled(false);
     ui->start_pushButton->setEnabled(false);
     ui->noRealTime_groupBox->setEnabled(false);
+    ui->realTime_groupBox->setEnabled(false);
     m_connectIndicator->setColor(Qt::red);
     ui->save_action->setEnabled(false);
     ui->test_checkBox->setEnabled(false);
@@ -71,6 +71,7 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
             ui->size_spinBox->setEnabled(true);
             ui->start_pushButton->setEnabled(true);
             ui->noRealTime_groupBox->setEnabled(true);
+            ui->realTime_groupBox->setEnabled(true);
             ui->test_checkBox->setEnabled(true);
             ui->save_action->setEnabled(true);
             ui->adcSpi_pushButton->setEnabled(true);
@@ -323,6 +324,10 @@ void MainWindow::on_realTime_pushButton_clicked(bool checked)
             // Program in real-time receive mode
             m_digitizer->RealTimeStart();
         }
+        else
+        {
+            m_digitizer->RealTimeStop();
+        }
     } catch (DigitizerException e) {
         QMessageBox::critical(this,
                               "Ошибка",
@@ -330,7 +335,7 @@ void MainWindow::on_realTime_pushButton_clicked(bool checked)
     }
 }
 
-void MainWindow::on_m_digitizer_saveFileError(QString msg)
+void MainWindow::m_digitizer_saveFileError(QString msg)
 {
     QSignalBlocker(ui->realTime_pushButton);
 

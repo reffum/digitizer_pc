@@ -175,6 +175,7 @@ void MainWindow::updateTimer_timeout()
 {
     qint64 receiveSize = m_digitizer->GetDataSize();
     ui->receiveSize_lcdNumber->display(static_cast<int>(receiveSize));
+    ui->rtFrames_lcdNumber->display(m_digitizer->RealTimeFrameNumber());
 }
 
 void MainWindow::on_save_action_triggered(bool checked)

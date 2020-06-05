@@ -42,6 +42,8 @@ public:
     static const unsigned PWM_MIN_DC = 1;
     static const unsigned PWM_MAX_DC = 99;
 
+    int fileNum = 1;
+
     // All methods throw DigitizerException in case of error, if otherwise not specified.
 public:
     // Connect to device
@@ -96,6 +98,7 @@ public:
 
     void RealTimeStart();
     void RealTimeStop();
+    int RealTimeFrameNumber();
 
 signals:
     void saveFileError(QString msg);

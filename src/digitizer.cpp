@@ -293,7 +293,6 @@ void Digitizer::RealTimeStart()
                 [=]()
     {
         const int WAIT_TIMEOUT = 1;
-        int fileNum = 1;
 
         // Size of next data packet
         quint32 lastPacketSize = 0;
@@ -376,4 +375,9 @@ void Digitizer::RealTimeStop()
     } catch (ModbusException e) {
         throw DigitizerException(e.getMessage());
     }
+}
+
+int Digitizer::RealTimeFrameNumber()
+{
+    return fileNum;
 }

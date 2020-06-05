@@ -106,6 +106,10 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
             ui->pwmDC_spinBox->setValue(static_cast<int>(m_digitizer->GetPwmDC()));
             ui->ddsFreq_spinBox->setValue(static_cast<int>(m_digitizer->GetDDSFreq()));
             ui->ddsAmp_spinBox->setValue(static_cast<int>(m_digitizer->GetDDSAmp()));
+
+            QSignalBlocker realTime_pushButtonBlocker(ui->realTime_pushButton);
+            ui->realTime_pushButton->setChecked(false);
+            ui->realTime_pushButton->setText("Старт");
         }
         else
         {
@@ -323,10 +327,12 @@ void MainWindow::on_realTime_pushButton_clicked(bool checked)
         {
             // Program in real-time receive mode
             m_digitizer->RealTimeStart();
+            ui->realTime_pushButton->setText("Стоп");
         }
         else
         {
             m_digitizer->RealTimeStop();
+            ui->realTime_pushButton->setText("Старт");
         }
     } catch (DigitizerException e) {
         QMessageBox::critical(this,

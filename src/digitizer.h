@@ -28,7 +28,7 @@ class Digitizer : public QObject
     QThread *realTimeThread;
 
     // Directory for save real-time packets
-    const QString SaveFilePath = "C:/Project";
+    const QString SaveFilePath = "C:/Project/data";
 
 public:
     Digitizer(QObject* parent = nullptr);

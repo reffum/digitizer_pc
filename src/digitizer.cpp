@@ -1,3 +1,4 @@
+#include <QDebug>
 #include <QNetworkDatagram>
 #include <QFile>
 #include "digitizer.h"
@@ -320,6 +321,8 @@ void Digitizer::RealTimeStart()
             m_sizeSocket->read((char*)&lastPacketSize, 4);
     #pragma GCC diagnostic pop
 
+            qDebug() << "Last packet: " << lastPacketSize;
+
 
             // Receive data from data TCP connection
             while(true)
@@ -334,7 +337,8 @@ void Digitizer::RealTimeStart()
                     return;
             }
 
-            QByteArray data = m_dataSocket->readAll();
+
+            QByteArray data = m_dataSocket->read(lastPacketSize);
 
             // Save data to file
             QString fileName = SaveFilePath + QString("/") + QString("%1").arg(fileNum) + ".dat";

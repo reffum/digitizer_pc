@@ -119,8 +119,8 @@ void Digitizer::Disconnect()
 {
     if(m_connectionState)
     {
-        Modbus::Disconnect();
         RealTimeStop();
+        Modbus::Disconnect();
         m_dataSocket->disconnectFromHost();
         m_sizeSocket->disconnectFromHost();
 

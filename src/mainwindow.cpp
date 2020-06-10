@@ -23,6 +23,8 @@ MainWindow::MainWindow(QWidget *parent)
     // Add tooltip for "Сохранить" button
     ui->save_pushButton->setToolTip(QString("Сохранить в файл %1").arg(DefaultSaveFile));
 
+    ui->ovf_indicator->setColor(Qt::green);
+
     m_versionLabel = new QLabel(this);
     statusBar()->addWidget(m_versionLabel);
 
@@ -175,7 +177,16 @@ void MainWindow::updateTimer_timeout()
 {
     qint64 receiveSize = m_digitizer->GetDataSize();
     ui->receiveSize_lcdNumber->display(static_cast<int>(receiveSize));
-    ui->rtFrames_lcdNumber->display(m_digitizer->RealTimeFrameNumber());
+
+    if(m_digitizer->GetConnectionState())
+    {
+        ui->rtFrames_lcdNumber->display(m_digitizer->RealTimeFrameNumber());
+
+        if(m_digitizer->RealTimeOverflow())
+            ui->ovf_indicator->setColor(Qt::red);
+        else
+            ui->ovf_indicator->setColor(Qt::green);
+    }
 }
 
 void MainWindow::on_save_action_triggered(bool checked)

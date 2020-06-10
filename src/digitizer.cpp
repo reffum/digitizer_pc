@@ -16,6 +16,78 @@ Digitizer::Digitizer(QObject* parent):
 
     m_dataSocket = new QTcpSocket(this);
     m_sizeSocket = new QTcpSocket(this);
+
+    realTimeThread = QThread::create(
+                [=]()
+    {
+        const int WAIT_TIMEOUT = 1;
+
+        // Size of next data packet
+        quint32 lastPacketSize = 0;
+
+        while(true)
+        {
+            // Wait for new packet size received
+            while(true)
+            {
+                qint64 numBytes = m_sizeSocket->bytesAvailable();
+                if(numBytes >= 4)
+                {
+                    break;
+                }
+
+                if(stopRealTimeThread)
+                    return;
+
+                QThread::sleep(WAIT_TIMEOUT);
+            }
+
+            // Read packet size
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wold-style-cast"
+            m_sizeSocket->read((char*)&lastPacketSize, 4);
+    #pragma GCC diagnostic pop
+
+            //qDebug() << "Last packet: " << lastPacketSize;
+
+
+            // Receive data from data TCP connection
+            while(true)
+            {
+                qint64 numBytes = m_dataSocket->bytesAvailable();
+                if(numBytes >= lastPacketSize)
+                {
+                    break;
+                }
+
+                if(stopRealTimeThread)
+                    return;
+            }
+
+
+            QByteArray data = m_dataSocket->read(lastPacketSize);
+
+            // Save data to file
+//            QString fileName = SaveFilePath + QString("/") + QString("%1").arg(fileNum) + ".dat";
+//            QFile file(fileName);
+
+//            if( !file.open(QIODevice::ReadWrite | QIODevice::Truncate) )
+//            {
+//                emit saveFileError(QString("Ошибка при попытке открыть или создать файл %1").arg(fileName));
+//                return;
+//            }
+
+//            if(file.write(data) != data.size())
+//            {
+//                emit saveFileError(QString("Ошибка при записи данных в файл %1").arg(fileName));
+//                return;
+//            }
+
+//            file.close();
+
+            fileNum++;
+        }
+    });
 }
 
 Digitizer::~Digitizer()
@@ -45,10 +117,15 @@ void Digitizer::Connect(QString ip)
 
 void Digitizer::Disconnect()
 {
-    Modbus::Disconnect();
-    m_dataSocket->disconnectFromHost();
-    m_sizeSocket->disconnectFromHost();
-    m_connectionState = false;
+    if(m_connectionState)
+    {
+        Modbus::Disconnect();
+        RealTimeStop();
+        m_dataSocket->disconnectFromHost();
+        m_sizeSocket->disconnectFromHost();
+
+        m_connectionState = false;
+    }
 }
 
 void Digitizer::SetTestMode(bool b)
@@ -290,76 +367,6 @@ void Digitizer::RealTimeStart()
 {
     stopRealTimeThread = false;
 
-    realTimeThread = QThread::create(
-                [=]()
-    {
-        const int WAIT_TIMEOUT = 1;
-
-        // Size of next data packet
-        quint32 lastPacketSize = 0;
-
-        while(true)
-        {
-            // Wait for new packet size received
-            while(true)
-            {
-                qint64 numBytes = m_sizeSocket->bytesAvailable();
-                if(numBytes >= 4)
-                {
-                    break;
-                }
-
-                if(stopRealTimeThread)
-                    return;
-
-                QThread::sleep(WAIT_TIMEOUT);
-            }
-
-            // Read packet size
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wold-style-cast"
-            m_sizeSocket->read((char*)&lastPacketSize, 4);
-    #pragma GCC diagnostic pop
-
-            qDebug() << "Last packet: " << lastPacketSize;
-
-
-            // Receive data from data TCP connection
-            while(true)
-            {
-                qint64 numBytes = m_dataSocket->bytesAvailable();
-                if(numBytes >= lastPacketSize)
-                {
-                    break;
-                }
-
-                if(stopRealTimeThread)
-                    return;
-            }
-
-
-            QByteArray data = m_dataSocket->read(lastPacketSize);
-
-            // Save data to file
-            QString fileName = SaveFilePath + QString("/") + QString("%1").arg(fileNum) + ".dat";
-            QFile file(fileName);
-
-            if( !file.open(QIODevice::ReadWrite | QIODevice::Truncate) )
-            {
-                emit saveFileError(QString("Ошибка при попытке открыть или создать файл %1").arg(fileName));
-                return;
-            }
-
-            if(file.write(data) != data.size())
-            {
-                emit saveFileError(QString("Ошибка при записи данных в файл %1").arg(fileName));
-                return;
-            }
-
-            fileNum++;
-        }
-    });
-
     try {
        Modbus::WriteRegister(CR, _CR_RT);
     } catch (ModbusException e) {
@@ -371,7 +378,8 @@ void Digitizer::RealTimeStart()
 
 void Digitizer::RealTimeStop()
 {
-    try {
+    try {    
+
         stopRealTimeThread = true;
         realTimeThread->wait();
 
@@ -384,4 +392,13 @@ void Digitizer::RealTimeStop()
 int Digitizer::RealTimeFrameNumber()
 {
     return fileNum;
+}
+
+bool Digitizer::RealTimeOverflow()
+{
+    try {
+        return Modbus::ReadRegister(SR) & _SR_RT_OVF;
+    } catch (ModbusException e) {
+        throw DigitizerException(e.getMessage());
+    }
 }

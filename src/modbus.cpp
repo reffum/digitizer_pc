@@ -4,7 +4,7 @@
 // Baudrate
 const int ModbusBaudrate = 9600;
 
-const int ModbusTimeout = 1000;
+const int ModbusTimeout = 3000;
 
 const int ModbusTcpPort = 502;
 

@@ -99,6 +99,7 @@ public:
     void RealTimeStart();
     void RealTimeStop();
     int RealTimeFrameNumber();
+    bool RealTimeOverflow();
 
 signals:
     void saveFileError(QString msg);

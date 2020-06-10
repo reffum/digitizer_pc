@@ -28,6 +28,8 @@ const quint16 _CR_START = 1;
 const quint16 _CR_TEST = 2;
 const quint16 _CR_RT = 4;
 
+const quint16 _SR_RT_OVF = 1;
+
 const quint16 _PWM_CONTROL_ENABLE = 1;
 
 const quint16 ID_VAL =0x55AA;

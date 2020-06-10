@@ -124,6 +124,10 @@ void Digitizer::Disconnect()
         m_dataSocket->disconnectFromHost();
         m_sizeSocket->disconnectFromHost();
 
+        // Cleare sockets buffer
+        m_dataSocket->readAll();
+        m_sizeSocket->readAll();
+
         m_connectionState = false;
     }
 }

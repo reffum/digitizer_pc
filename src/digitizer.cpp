@@ -65,7 +65,7 @@ Digitizer::Digitizer(QObject* parent):
             }
 
 
-            QByteArray data = m_dataSocket->read(lastPacketSize);
+            /*QByteArray data = */m_dataSocket->read(lastPacketSize);
 
             // Save data to file
 //            QString fileName = SaveFilePath + QString("/") + QString("%1").arg(fileNum) + ".dat";

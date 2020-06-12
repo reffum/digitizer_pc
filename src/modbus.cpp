@@ -29,7 +29,8 @@ void Modbus::Connect(int comPort)
 
 void Modbus::Connect(QString ip)
 {
-    const char *ipStr = ip.toStdString().c_str();
+    std::string s = ip.toStdString();
+    const char* ipStr = s.c_str();
     int r = ModbusTCP_Open(ipStr, ModbusTcpPort);
 
     if(r == MODBUS_MASTER_SUCCESS)

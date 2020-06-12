@@ -65,25 +65,25 @@ Digitizer::Digitizer(QObject* parent):
             }
 
 
-            /*QByteArray data = */m_dataSocket->read(lastPacketSize);
+            QByteArray data = m_dataSocket->read(lastPacketSize);
 
             // Save data to file
-//            QString fileName = SaveFilePath + QString("/") + QString("%1").arg(fileNum) + ".dat";
-//            QFile file(fileName);
+            QString fileName = SaveFilePath + QString("/") + QString("%1").arg(fileNum) + ".dat";
+            QFile file(fileName);
 
-//            if( !file.open(QIODevice::ReadWrite | QIODevice::Truncate) )
-//            {
-//                emit saveFileError(QString("Ошибка при попытке открыть или создать файл %1").arg(fileName));
-//                return;
-//            }
+            if( !file.open(QIODevice::ReadWrite | QIODevice::Truncate) )
+            {
+                emit saveFileError(QString("Ошибка при попытке открыть или создать файл %1").arg(fileName));
+                return;
+            }
 
-//            if(file.write(data) != data.size())
-//            {
-//                emit saveFileError(QString("Ошибка при записи данных в файл %1").arg(fileName));
-//                return;
-//            }
+            if(file.write(data) != data.size())
+            {
+                emit saveFileError(QString("Ошибка при записи данных в файл %1").arg(fileName));
+                return;
+            }
 
-//            file.close();
+            file.close();
 
             fileNum++;
         }

@@ -2,6 +2,7 @@
 #define MODBUS_H
 
 #include <QString>
+#include <QMutex.h>
 
 // Modbus registers
 const quint16 ID = 0;
@@ -59,6 +60,7 @@ class Modbus
 {
 private:
     Modbus(){}
+	static 	QMutex mutex;
 public:
     static void Connect(int comPort);
     static void Connect(QString ip);

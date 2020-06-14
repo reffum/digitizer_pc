@@ -55,6 +55,9 @@
     <ClCompile Include="src\qindicator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\dataReceive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\digitizer.h">
@@ -88,5 +91,13 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include=".\abpc_resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Header.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dataReceiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

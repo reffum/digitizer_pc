@@ -14,6 +14,8 @@ const quint8 ModbusId = 1;
 // Number of read/write attempts
 const int AttemptsNum = 3;
 
+QMutex Modbus::mutex;
+
 void Modbus::Connect(int comPort)
 {
     int r = ModbusCOM_Open(comPort, ModbusBaudrate);
@@ -53,6 +55,8 @@ quint16 Modbus::ReadRegister(quint16 addr)
     int r;
     int i;
 
+	QMutexLocker locker(&mutex);
+
     for(i = 0; i < AttemptsNum; i++)
     {
         r = TCP_ReadHold(ModbusId, addr, 1, &value);
@@ -82,6 +86,8 @@ void Modbus::WriteRegister(quint16 addr, quint16 value)
 {
     int r;
     int i;
+
+	QMutexLocker locker(&mutex);
 
     for(i = 0; i < AttemptsNum; i++)
     {

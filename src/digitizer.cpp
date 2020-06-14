@@ -1,98 +1,41 @@
+#include <string>
 #include <QDebug>
-#include <QNetworkDatagram>
 #include <QFile>
 #include "digitizer.h"
 #include "digitizerexception.h"
 #include "modbus.h"
+#include "dataReceiver.h"
+
+using namespace std;
 
 const int TCP_DATA_PORT = 1024;
-const int TCP_SIZE_PORT = 1025;
-
 
 Digitizer::Digitizer(QObject* parent):
-    m_dataSocket(nullptr), m_connectionState(false)
+    m_connectionState(false), noRealTimeSize(0), noRealTimeThread(nullptr)
 {
     Q_UNUSED(parent)
 
-    m_dataSocket = new QTcpSocket(this);
-    m_sizeSocket = new QTcpSocket(this);
-
-    realTimeThread = QThread::create(
-                [=]()
-    {
-        const int WAIT_TIMEOUT = 1;
-
-        // Size of next data packet
-        quint32 lastPacketSize = 0;
-
-        while(true)
-        {
-            // Wait for new packet size received
-            while(true)
-            {
-                qint64 numBytes = m_sizeSocket->bytesAvailable();
-                if(numBytes >= 4)
-                {
-                    break;
-                }
-
-                if(stopRealTimeThread)
-                    return;
-
-                QThread::sleep(WAIT_TIMEOUT);
-            }
-
-            // Read packet size
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wold-style-cast"
-            m_sizeSocket->read((char*)&lastPacketSize, 4);
-    #pragma GCC diagnostic pop
-
-            //qDebug() << "Last packet: " << lastPacketSize;
-
-
-            // Receive data from data TCP connection
-            while(true)
-            {
-                qint64 numBytes = m_dataSocket->bytesAvailable();
-                if(numBytes >= lastPacketSize)
-                {
-                    break;
-                }
-
-                if(stopRealTimeThread)
-                    return;
-            }
-
-
-            QByteArray data = m_dataSocket->read(lastPacketSize);
-
-            // Save data to file
-            QString fileName = SaveFilePath + QString("/") + QString("%1").arg(fileNum) + ".dat";
-            QFile file(fileName);
-
-            if( !file.open(QIODevice::ReadWrite | QIODevice::Truncate) )
-            {
-                emit saveFileError(QString("Ошибка при попытке открыть или создать файл %1").arg(fileName));
-                return;
-            }
-
-            if(file.write(data) != data.size())
-            {
-                emit saveFileError(QString("Ошибка при записи данных в файл %1").arg(fileName));
-                return;
-            }
-
-            file.close();
-
-            fileNum++;
-        }
-    });
+	// Thread for receive data in a real-time mode and write it to file
+	realTimeThread = QThread::create(
+		[=]()
+		{
+			try {
+				string ipStr = m_ip.toStdString();
+				fileNum = 0;
+				ReceiveRealTimeData(ipStr.c_str(), TCP_DATA_PORT, stopRealTimeThread, fileNum);
+			}
+			catch (exception e)
+			{
+				emit saveFileError(e.what());
+				Modbus::WriteRegister(CR, 0);
+			}
+		}
+	);
 }
 
 Digitizer::~Digitizer()
 {
-    delete m_dataSocket;
+	
 }
 
 void Digitizer::Connect(QString ip)
@@ -106,8 +49,7 @@ void Digitizer::Connect(QString ip)
             throw DigitizerException("ID устройства неверное");
         }
 
-        m_dataSocket->connectToHost(QHostAddress(ip), TCP_DATA_PORT);
-        m_sizeSocket->connectToHost(QHostAddress(ip), TCP_SIZE_PORT);
+		m_ip = ip;
         m_connectionState = true;
 
     } catch (ModbusException e) {
@@ -121,12 +63,6 @@ void Digitizer::Disconnect()
     {
         RealTimeStop();
         Modbus::Disconnect();
-        m_dataSocket->disconnectFromHost();
-        m_sizeSocket->disconnectFromHost();
-
-        // Cleare sockets buffer
-        m_dataSocket->readAll();
-        m_sizeSocket->readAll();
 
         m_connectionState = false;
     }
@@ -161,7 +97,31 @@ bool Digitizer::GetTestMode()
 
 void Digitizer::StartReceive(int size)
 {
+	noRealTimeSize = 0;
+
+	if (noRealTimeThread == nullptr)
+	{
+		noRealTimeThread = QThread::create(
+			[=]()
+			{
+				try {
+					string ipStr = m_ip.toStdString();
+					ReceiveNoRealTimeData(ipStr.c_str(), TCP_DATA_PORT, size, stopNoRealTimeThread, noRealTimeSize);
+				}
+				catch (exception e)
+				{
+					emit saveFileError(e.what());
+					Modbus::WriteRegister(CR, 0);
+				}
+			}
+		);
+	}
+
     try {
+		stopNoRealTimeThread = false;
+
+		noRealTimeThread->start();
+
         Modbus::WriteRegister(DSIZE, static_cast<quint16>(size >> 6));
 
         quint16 cr = Modbus::ReadRegister(CR);
@@ -169,19 +129,23 @@ void Digitizer::StartReceive(int size)
         Modbus::WriteRegister(CR, cr);
 
     } catch (ModbusException e) {
+		stopNoRealTimeThread = true;
+
         Disconnect();
         throw DigitizerException(e.getMessage());
     }
 }
 
+extern uint8_t ReceiveBuffer[];
+
 QByteArray Digitizer::GetData()
 {
-    return m_dataSocket->readAll();
+	return QByteArray((char*)ReceiveBuffer, noRealTimeSize);
 }
 
 qint64 Digitizer::GetDataSize()
 {
-    return m_dataSocket->size();
+	return noRealTimeSize;
 }
 
 bool Digitizer::GetConnectionState()
@@ -372,7 +336,8 @@ void Digitizer::RealTimeStart()
     stopRealTimeThread = false;
 
     try {
-       Modbus::WriteRegister(CR, _CR_RT);
+
+		Modbus::WriteRegister(CR, _CR_RT);
     } catch (ModbusException e) {
         throw DigitizerException(e.getMessage());
     }

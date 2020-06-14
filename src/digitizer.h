@@ -1,7 +1,6 @@
 #ifndef DIGITIZER_H
 #define DIGITIZER_H
 
-#include <QTcpSocket>
 #include <QString>
 #include <QThread>
 #include "digitizerexception.h"
@@ -18,17 +17,21 @@ class Digitizer : public QObject
 {
     Q_OBJECT
 
-    QTcpSocket *m_dataSocket;
-    QTcpSocket *m_sizeSocket;
-
     bool m_connectionState;
-    QByteArray m_byteArray;
 
     bool stopRealTimeThread = false;
+	bool stopNoRealTimeThread = false;
     QThread *realTimeThread;
+	QThread* noRealTimeThread;
 
     // Directory for save real-time packets
     const QString SaveFilePath = "C:/Project/data";
+
+	// IP address
+	QString m_ip;
+
+	// Received data size in no real-time mode
+	size_t noRealTimeSize;
 
 public:
     Digitizer(QObject* parent = nullptr);

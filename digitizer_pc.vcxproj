@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{82310BB8-C5D5-3B17-A548-C2BB9508DC20}</ProjectGuid>
+    <ProjectGuid>{4459075B-6B57-395C-9C5B-CCF0077745B4}</ProjectGuid>
     <RootNamespace>abpc</RootNamespace>
     <Keyword>QtVS_v302</Keyword>
     <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
@@ -31,7 +31,7 @@
     <PlatformToolset>v142</PlatformToolset>
     <OutputDirectory>debug\</OutputDirectory>
     <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
-    <CharacterSet>NotSet</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
     <ConfigurationType>Application</ConfigurationType>
     <IntermediateDirectory>debug\</IntermediateDirectory>
     <PrimaryOutput>abpc</PrimaryOutput>
@@ -55,11 +55,11 @@
     <Import Project="$(QtMsBuild)\qt_defaults.props" />
   </ImportGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <QtInstall>msvc17_32</QtInstall>
+    <QtInstall>msvc2019</QtInstall>
     <QtModules>core;network;gui;widgets</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <QtInstall>msvc17_32</QtInstall>
+    <QtInstall>msvc2019</QtInstall>
     <QtModules>core;network;gui;widgets</QtModules>
   </PropertyGroup>
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
@@ -97,7 +97,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>.\libs\SHARK_DLL32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>.\libs\SHARK_DLL32.dll;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\opensslx86\lib;C:\Utils\my_sql\mysql-5.7.25-win32\lib;C:\Utils\postgresqlx86\pgsql\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -189,6 +189,7 @@
     </QtMoc>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\dataReceive.cpp" />
     <ClCompile Include="src\digitizer.cpp" />
     <ClCompile Include="src\digitizerexception.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -199,6 +200,8 @@
   <ItemGroup>
     <QtMoc Include="src\digitizer.h">
     </QtMoc>
+    <ClInclude Include="Header.h" />
+    <ClInclude Include="src\dataReceiver.h" />
     <ClInclude Include="src\digitizerexception.h" />
     <QtMoc Include="src\mainwindow.h">
     </QtMoc>

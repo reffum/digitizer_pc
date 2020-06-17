@@ -33,7 +33,7 @@ void WriteDataToFile(string fileName, char* data, size_t size)
 		0,
 		NULL,
 		CREATE_ALWAYS,
-		FILE_FLAG_NO_BUFFERING | FILE_FLAG_WRITE_THROUGH,
+		FILE_ATTRIBUTE_NORMAL, //FILE_FLAG_NO_BUFFERING | FILE_FLAG_WRITE_THROUGH,
 		NULL
 	);
 
@@ -130,6 +130,15 @@ void ReceiveRealTimeData(const char* ip, const short port, bool& stop, int& file
 				throw exception("Connection closed");
 			}
 
+			if (iResult == SOCKET_ERROR)
+			{
+				string msg = "Receive data error with code" + to_string(GetLastError());
+				throw exception(msg.c_str());
+			}
+
+			if (packetSize == 0)
+				continue;
+
 			currentSize = packetSize;
 
 			// Receive data
@@ -150,6 +159,12 @@ void ReceiveRealTimeData(const char* ip, const short port, bool& stop, int& file
 					throw exception("Connection closed");
 				}
 
+				if (iResult == SOCKET_ERROR)
+				{
+					string msg = "Receive data error with code" + to_string(GetLastError());
+					throw exception(msg.c_str());
+				}
+
 				currentSize -= iResult;
 
 				if (currentSize == 0)
@@ -159,7 +174,8 @@ void ReceiveRealTimeData(const char* ip, const short port, bool& stop, int& file
 			}
 
 			string fileName = FilePath + to_string(fileNum) + ".dat";
-			WriteDataToFile(fileName, (char*)ReceiveBuffer, packetSize);
+			//WriteDataToFile(fileName, (char*)ReceiveBuffer, packetSize);
+			fileNum++;
 		}
 
 	close_connection:

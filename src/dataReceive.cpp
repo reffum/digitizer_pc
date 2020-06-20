@@ -21,7 +21,7 @@ using namespace std;
 // Receive data buffer
 uint8_t ReceiveBuffer[RECEIVE_BUFFER_SIZE];
 
-const string FilePath = "C:/Project/data/";
+const string FilePath = "C:/Project/data/data.dat";
 
 void WriteDataToFile(string fileName, char* data, size_t size)
 {
@@ -71,11 +71,66 @@ void WriteDataToFile(string fileName, char* data, size_t size)
 	CloseHandle(hFile);
 }
 
+static HANDLE CreateDataFile(string fileName)
+{
+	HANDLE hFile = CreateFileA(
+		fileName.c_str(),
+		GENERIC_WRITE,
+		0,
+		NULL,
+		CREATE_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL, //FILE_FLAG_NO_BUFFERING | FILE_FLAG_WRITE_THROUGH,
+		NULL
+	);
+
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		string msg;
+		msg = "Creteate file" + fileName + " error. Last Error: " + to_string(GetLastError());
+		throw exception(msg.c_str());
+	}
+
+	return hFile;
+}
+
+static void WriteDataToFile(HANDLE hFile, char* data, size_t size)
+{
+	int r;
+
+	DWORD numberOfBytesWritten;
+
+	r = WriteFile(
+		hFile,
+		data,
+		size,
+		&numberOfBytesWritten,
+		NULL
+	);
+
+	if (!r)
+	{
+		string msg = "Write file error. ERROR: " + to_string(GetLastError());
+		throw exception(msg.c_str());
+	}
+
+	if (numberOfBytesWritten != size)
+	{
+		string msg = "Write file error. Number of written byte is not equal size of buffer.";
+		throw exception(msg.c_str());
+	}
+}
+
+static void CloseDataFile(HANDLE hFile)
+{
+	CloseHandle(hFile);
+}
+
 void ReceiveRealTimeData(const char* ip, const short port, bool& stop, int& fileNum)
 {
 	// stop flag poll Timeout in us
 	const int Timeout = 1000 * 500;
 
+	HANDLE hFile;
 	WSADATA wsaData = { 0 };
 	int iResult = 0;
 
@@ -94,6 +149,8 @@ void ReceiveRealTimeData(const char* ip, const short port, bool& stop, int& file
 	boardSockAddr.sin_port = htons(port);
 
 	try {
+		hFile = CreateDataFile(FilePath);
+
 		iResult = connect(sock, (SOCKADDR*)&boardSockAddr, sizeof(boardSockAddr));
 		if (iResult == SOCKET_ERROR)
 		{
@@ -102,7 +159,6 @@ void ReceiveRealTimeData(const char* ip, const short port, bool& stop, int& file
 
 		while (true)
 		{
-
 			// Receive size
 			uint32_t packetSize, currentSize;
 
@@ -141,6 +197,8 @@ void ReceiveRealTimeData(const char* ip, const short port, bool& stop, int& file
 
 			currentSize = packetSize;
 
+			WriteDataToFile(hFile, (char*)&packetSize, sizeof(packetSize));
+
 			// Receive data
 			while (true)
 			{
@@ -165,6 +223,8 @@ void ReceiveRealTimeData(const char* ip, const short port, bool& stop, int& file
 					throw exception(msg.c_str());
 				}
 
+				WriteDataToFile(hFile, currentAddress, iResult);
+
 				currentSize -= iResult;
 
 				if (currentSize == 0)
@@ -172,22 +232,22 @@ void ReceiveRealTimeData(const char* ip, const short port, bool& stop, int& file
 
 				currentAddress += iResult;
 			}
-
-			string fileName = FilePath + to_string(fileNum) + ".dat";
-			//WriteDataToFile(fileName, (char*)ReceiveBuffer, packetSize);
 			fileNum++;
 		}
 
 	close_connection:
-		shutdown(sock, SD_BOTH);
+		WSASendDisconnect(sock, NULL);
 		closesocket(sock);
 		WSACleanup();
+
+		CloseDataFile(hFile);
 	}
 	catch (exception e)
 	{
-		shutdown(sock, SD_BOTH);
+		WSASendDisconnect(sock, NULL);
 		closesocket(sock);
 		WSACleanup();
+		CloseDataFile(hFile);
 
 		throw;
 	}
@@ -287,14 +347,14 @@ void ReceiveNoRealTimeData(const char *ip, const short port, size_t size, bool& 
 	
 
 	close_connection:
-		shutdown(sock, SD_BOTH);
+		WSASendDisconnect(sock, NULL);
 		closesocket(sock);
 		WSACleanup();
 
 	}
 	catch (exception e)
 	{
-		shutdown(sock, SD_BOTH);
+		WSASendDisconnect(sock, NULL);
 		closesocket(sock);
 		WSACleanup();
 

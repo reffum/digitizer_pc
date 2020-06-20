@@ -61,7 +61,13 @@ void Digitizer::Disconnect()
 {
     if(m_connectionState)
     {
-        RealTimeStop();
+        try {
+            RealTimeStop();
+        }
+        catch (DigitizerException)
+        {
+
+        }
         Modbus::Disconnect();
 
         m_connectionState = false;

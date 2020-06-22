@@ -1,5 +1,4 @@
 
-//
 // Receive data from board and save it in files in real-time mode
 //
 #include <WinSock2.h>
@@ -21,7 +20,7 @@ using namespace std;
 // Receive data buffer
 uint8_t ReceiveBuffer[RECEIVE_BUFFER_SIZE];
 
-const string FilePath = "C:/Project/data/data.dat";
+const string DataFile = "C:/Project/data/data.dat";
 
 void WriteDataToFile(string fileName, char* data, size_t size)
 {
@@ -149,7 +148,7 @@ void ReceiveRealTimeData(const char* ip, const short port, bool& stop, int& file
 	boardSockAddr.sin_port = htons(port);
 
 	try {
-		hFile = CreateDataFile(FilePath);
+		hFile = CreateDataFile(DataFile);
 
 		iResult = connect(sock, (SOCKADDR*)&boardSockAddr, sizeof(boardSockAddr));
 		if (iResult == SOCKET_ERROR)
@@ -360,4 +359,167 @@ void ReceiveNoRealTimeData(const char *ip, const short port, size_t size, bool& 
 
 		throw;
 	}
+}
+
+//
+// Parse data file, written ReceiveRealTimeData(). 
+// Parse each frame and write it in separate file.
+//
+void ParseDataFile(string fileName, string FilesPath, size_t& currentSize, bool& stop)
+{
+	HANDLE hDataFile = INVALID_HANDLE_VALUE, hWriteFile = INVALID_HANDLE_VALUE;
+	int frameNum = 0;
+	uint32_t frameSize;
+	BOOL b;
+	DWORD numberOfBytesRead;
+	string writeFileName;
+	size_t writeSize;
+
+	static char Buffer[1024 * 1024];
+
+	currentSize = 0;
+
+	hDataFile = CreateFileA(
+		fileName.c_str(),
+		GENERIC_READ,
+		0,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+
+	if (hDataFile == INVALID_HANDLE_VALUE)
+	{
+		string msg = "Open data file " + fileName + " error: " + to_string(GetLastError());
+		throw exception(msg.c_str());
+	}
+
+	try {
+
+		while (true)
+		{
+			// Read frame size
+			b = ReadFile(
+				hDataFile,
+				Buffer,
+				sizeof(frameSize),
+				&numberOfBytesRead,
+				NULL
+			);
+
+			if (!b)
+			{
+				string msg = "Read frame " + to_string(frameNum) + " size error. Error code: " + to_string(GetLastError());
+				throw exception(msg.c_str());
+			}
+
+			// End of file 
+			if (numberOfBytesRead == 0)
+			{
+				break;
+			}
+
+			if (numberOfBytesRead != sizeof(frameSize))
+			{
+				string msg = "Read frame " + to_string(frameNum) + " size error. Read bytes number not equal number of bytes to read";
+				throw exception(msg.c_str());
+			}
+
+			// Create file to frame
+			writeFileName = FilesPath + to_string(frameNum) + ".dat";
+
+			hWriteFile = CreateFileA(
+				writeFileName.c_str(),
+				GENERIC_WRITE,
+				0,
+				NULL,
+				CREATE_ALWAYS,
+				FILE_ATTRIBUTE_NORMAL,
+				NULL
+			);
+
+			if (hWriteFile == INVALID_HANDLE_VALUE)
+			{
+				string msg = "Create file for frame " + to_string(frameNum) + " error. Error code: " + to_string(GetLastError());
+				throw exception(msg.c_str());
+			}
+
+			// Read frame data and write it to file
+			do {
+				if (stop)
+					goto exit;
+
+				writeSize = frameSize > sizeof(Buffer) ? sizeof(Buffer) : frameSize;
+
+				b = ReadFile(
+					hDataFile,
+					Buffer,
+					writeSize,
+					&numberOfBytesRead,
+					NULL
+				);
+
+				if (!b)
+				{
+					string msg = "Read frame " + to_string(frameNum) + " data error. Error code: " + to_string(GetLastError());
+					throw exception(msg.c_str());
+				}
+
+				if (numberOfBytesRead != sizeof(frameSize))
+				{
+					string msg = "Read frame " + to_string(frameNum) + " data error. Read bytes number not equal number of bytes to read";
+					throw exception(msg.c_str());
+				}
+
+				b = WriteFile(
+					hWriteFile,
+					Buffer,
+					writeSize,
+					&numberOfBytesRead,
+					NULL
+				);
+
+				if (!b)
+				{
+					string msg = "Write frame " + to_string(frameSize) + "data error. Error code: " + to_string(GetLastError());
+					throw exception(msg.c_str());
+				}
+
+				if (numberOfBytesRead != writeSize)
+				{
+					string msg = "Write frame " + to_string(frameNum) + " data error. Write bytes number not equal number of bytes to write";
+					throw exception(msg.c_str());
+				}
+
+				currentSize += writeSize;
+				frameSize -= writeSize;
+
+			} while (frameSize > 0);
+
+			CloseHandle(hWriteFile);
+			hWriteFile = INVALID_HANDLE_VALUE;
+
+			frameNum++;
+		}
+
+		CloseHandle(hDataFile);
+	}
+	catch (exception e)
+	{
+		if(hDataFile != INVALID_HANDLE_VALUE)
+			CloseHandle(hDataFile);
+
+		if(hWriteFile != INVALID_HANDLE_VALUE)
+			CloseHandle(hWriteFile);
+
+		throw;
+	}
+
+exit:
+	if (hDataFile != INVALID_HANDLE_VALUE)
+		CloseHandle(hDataFile);
+
+	if (hWriteFile != INVALID_HANDLE_VALUE)
+		CloseHandle(hWriteFile);
 }

@@ -189,6 +189,8 @@
     </QtMoc>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="FileParserDialog.cpp" />
+    <ClCompile Include="FileParseThread.cpp" />
     <ClCompile Include="src\dataReceive.cpp" />
     <ClCompile Include="src\digitizer.cpp" />
     <ClCompile Include="src\digitizerexception.cpp" />
@@ -200,7 +202,8 @@
   <ItemGroup>
     <QtMoc Include="src\digitizer.h">
     </QtMoc>
-    <ClInclude Include="Header.h" />
+    <QtMoc Include="FileParseThread.h" />
+    <QtMoc Include="FileParserDialog.h" />
     <ClInclude Include="src\dataReceiver.h" />
     <ClInclude Include="src\digitizerexception.h" />
     <QtMoc Include="src\mainwindow.h">
@@ -228,11 +231,9 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <QtUic Include="forms\FileParserDialog.ui" />
     <QtUic Include="mainwindow.ui">
     </QtUic>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include=".\abpc_resource.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

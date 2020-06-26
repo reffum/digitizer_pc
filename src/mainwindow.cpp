@@ -4,6 +4,7 @@
 #include <QFileDialog>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "FileParserDialog.h"
 
 // The path where file is saved, when user push button "Сохранить"
 const QString DefaultSaveFile = "C:/Project/1.dat";
@@ -215,6 +216,12 @@ void MainWindow::on_save_action_triggered(bool checked)
     {
         QMessageBox::critical(this, "Ошибка", "Ошибка при записи данных в файл");
     }
+}
+
+void MainWindow::on_fileParser_action_triggered(bool checked)
+{
+	FileParserDialog* dialog = new FileParserDialog(this);
+	dialog->show();
 }
 
 void MainWindow::on_test_checkBox_stateChanged(int state)

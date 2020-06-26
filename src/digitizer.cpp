@@ -14,23 +14,6 @@ Digitizer::Digitizer(QObject* parent):
     m_connectionState(false), noRealTimeSize(0), noRealTimeThread(nullptr)
 {
     Q_UNUSED(parent)
-
-	// Thread for receive data in a real-time mode and write it to file
-	realTimeThread = QThread::create(
-		[=]()
-		{
-			try {
-				string ipStr = m_ip.toStdString();
-				fileNum = 0;
-				ReceiveRealTimeData(ipStr.c_str(), TCP_DATA_PORT, stopRealTimeThread, fileNum);
-			}
-			catch (exception e)
-			{
-				emit saveFileError(e.what());
-				Modbus::WriteRegister(CR, 0);
-			}
-		}
-	);
 }
 
 Digitizer::~Digitizer()
@@ -341,6 +324,22 @@ void Digitizer::RealTimeStart()
 {
     stopRealTimeThread = false;
 
+	realTimeThread = QThread::create(
+		[=]()
+		{
+			try {
+				string ipStr = m_ip.toStdString();
+				fileNum = 0;
+				ReceiveRealTimeData(ipStr.c_str(), TCP_DATA_PORT, stopRealTimeThread, fileNum);
+			}
+			catch (exception e)
+			{
+				emit saveFileError(e.what());
+				Modbus::WriteRegister(CR, 0);
+			}
+		}
+	);
+
     try {
 
 		Modbus::WriteRegister(CR, _CR_RT);
@@ -357,6 +356,8 @@ void Digitizer::RealTimeStop()
 
         stopRealTimeThread = true;
         realTimeThread->wait();
+		
+		delete realTimeThread;
 
         Modbus::WriteRegister(CR, 0);
     } catch (ModbusException e) {

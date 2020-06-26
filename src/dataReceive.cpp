@@ -22,6 +22,38 @@ uint8_t ReceiveBuffer[RECEIVE_BUFFER_SIZE];
 
 const string DataFile = "C:/Project/data/data.dat";
 
+size_t getFileSize(string filename)
+{
+	HANDLE hFile = CreateFileA(
+		filename.c_str(),
+		GENERIC_READ,
+		0,
+		NULL,
+		OPEN_EXISTING,
+		0,
+		NULL);
+
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		throw exception("Can't open binary file");
+	}
+
+	LARGE_INTEGER liSize;
+
+	if (!GetFileSizeEx(hFile, &liSize))
+	{
+		CloseHandle(hFile);
+		throw exception("Can't get binary file size");
+	}
+
+	CloseHandle(hFile);
+
+	size_t size = (size_t)liSize.QuadPart;
+
+	return size;
+}
+
+
 void WriteDataToFile(string fileName, char* data, size_t size)
 {
 	int r;
@@ -365,7 +397,7 @@ void ReceiveNoRealTimeData(const char *ip, const short port, size_t size, bool& 
 // Parse data file, written ReceiveRealTimeData(). 
 // Parse each frame and write it in separate file.
 //
-void ParseDataFile(string fileName, string FilesPath, size_t& currentSize, bool& stop)
+void ParseDataFile(string fileName, string FilesPath, double &progress, bool& stop)
 {
 	HANDLE hDataFile = INVALID_HANDLE_VALUE, hWriteFile = INVALID_HANDLE_VALUE;
 	int frameNum = 0;
@@ -374,6 +406,8 @@ void ParseDataFile(string fileName, string FilesPath, size_t& currentSize, bool&
 	DWORD numberOfBytesRead;
 	string writeFileName;
 	size_t writeSize;
+	LARGE_INTEGER dataFileSize;
+	size_t currentSize;
 
 	static char Buffer[1024 * 1024];
 
@@ -396,6 +430,12 @@ void ParseDataFile(string fileName, string FilesPath, size_t& currentSize, bool&
 	}
 
 	try {
+
+		if (!GetFileSizeEx(hDataFile, &dataFileSize))
+		{
+			CloseHandle(hDataFile);
+			throw exception("Can't get binary file size");
+		}
 
 		while (true)
 		{
@@ -494,6 +534,7 @@ void ParseDataFile(string fileName, string FilesPath, size_t& currentSize, bool&
 
 				currentSize += writeSize;
 				frameSize -= writeSize;
+				progress = (double)currentSize / dataFileSize.QuadPart;
 
 			} while (frameSize > 0);
 

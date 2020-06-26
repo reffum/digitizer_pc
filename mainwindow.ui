@@ -397,13 +397,20 @@
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu">
+   <widget class="QMenu" name="file_menu">
     <property name="title">
      <string>Файл</string>
     </property>
     <addaction name="save_action"/>
    </widget>
-   <addaction name="menu"/>
+   <widget class="QMenu" name="tools_menu">
+    <property name="title">
+     <string>Инструменты</string>
+    </property>
+    <addaction name="fileParser_action"/>
+   </widget>
+   <addaction name="file_menu"/>
+   <addaction name="tools_menu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="save_action">
@@ -412,6 +419,11 @@
    </property>
    <property name="text">
     <string>Сохранть данные в файл</string>
+   </property>
+  </action>
+  <action name="fileParser_action">
+   <property name="text">
+    <string>Конвертер</string>
    </property>
   </action>
  </widget>

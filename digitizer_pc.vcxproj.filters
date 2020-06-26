@@ -58,6 +58,12 @@
     <ClCompile Include="src\dataReceive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FileParseThread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FileParserDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\digitizer.h">
@@ -75,6 +81,12 @@
     <QtMoc Include="src\qindicator.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="FileParseThread.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="FileParserDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="debug\moc_predefs.h.cbt">
@@ -88,14 +100,11 @@
     <QtUic Include="mainwindow.ui">
       <Filter>Form Files</Filter>
     </QtUic>
+    <QtUic Include="forms\FileParserDialog.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include=".\abpc_resource.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Header.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\dataReceiver.h">
       <Filter>Header Files</Filter>
     </ClInclude>

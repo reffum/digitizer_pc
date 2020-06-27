@@ -42,13 +42,16 @@ void FileParserDialog::on_start_pushButton_clicked(bool checked)
 {
 	Q_UNUSED(checked);
 
+	m_fileName = ui->file_lineEdit->text();
+	m_filePath = ui->path_lineEdit->text();
+
 	m_thread = new FileParseThread(m_fileName, m_filePath, this);
 
 	ui->start_pushButton->setEnabled(false);
 	ui->stop_pushButton->setEnabled(true);
 	ui->progressBar->setValue(0);
 
-	connect(m_thread, SIGNAL(errorOccured()), this, SLOT(m_thread_errorOccured()));
+	connect(m_thread, SIGNAL(errorOccured(QString)), this, SLOT(m_thread_errorOccured(QString)));
 	connect(m_thread, SIGNAL(finished()), this, SLOT(m_thread_finished()));
 	connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateTimer_timeout));
 
@@ -81,11 +84,9 @@ void FileParserDialog::m_thread_errorOccured(QString msg)
 	disconnect(m_thread, SIGNAL(errorOccured()), this, SLOT(m_thread_errorOccured()));
 	disconnect(m_thread, SIGNAL(finished()), this, SLOT(m_thread_finished()));
 
-	delete m_thread;
+	QString message = QString::fromLocal8Bit("Ошибка при разборе файла данных: ") + msg;
 
-	QString message = "Ошибка при разборе файла данных: " + msg;
-
-	QMessageBox::critical(this, "Ошибка", message);
+	QMessageBox::critical(this, QString::fromLocal8Bit("Ошибка"), message);
 
 	ui->start_pushButton->setEnabled(true);
 	ui->stop_pushButton->setEnabled(false);
@@ -99,9 +100,7 @@ void FileParserDialog::m_thread_finished()
 	disconnect(m_thread, SIGNAL(errorOccured()), this, SLOT(m_thread_errorOccured()));
 	disconnect(m_thread, SIGNAL(finished()), this, SLOT(m_thread_finished()));
 
-	delete m_thread;
-
-	QMessageBox::information(this, QString(), "Разбор файла окончен");
+	QMessageBox::information(this, QString(), QString::fromLocal8Bit("Разбор файла окончен"));
 
 	ui->start_pushButton->setEnabled(true);
 	ui->stop_pushButton->setEnabled(false);

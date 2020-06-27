@@ -33,7 +33,7 @@
       </size>
      </property>
      <property name="text">
-      <string>C:\Projject\data</string>
+      <string>C:/Project/data/temp/data.dat</string>
      </property>
     </widget>
    </item>
@@ -67,7 +67,7 @@
       </size>
      </property>
      <property name="text">
-      <string>C:\Projject\data</string>
+      <string>C:/Project/data/temp</string>
      </property>
     </widget>
    </item>

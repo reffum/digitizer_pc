@@ -20,6 +20,7 @@ void FileParseThread::run()
 	}
 	catch (exception e)
 	{
+		QString msg = e.what();
 		emit errorOccured(e.what());
 	}
 }

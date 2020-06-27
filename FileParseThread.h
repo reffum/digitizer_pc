@@ -22,4 +22,5 @@ public:
 
 signals:
 	void errorOccured(QString msg);
+	void ready();
 };

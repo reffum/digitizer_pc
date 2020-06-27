@@ -52,7 +52,7 @@ void FileParserDialog::on_start_pushButton_clicked(bool checked)
 	ui->progressBar->setValue(0);
 
 	connect(m_thread, SIGNAL(errorOccured(QString)), this, SLOT(m_thread_errorOccured(QString)));
-	connect(m_thread, SIGNAL(finished()), this, SLOT(m_thread_finished()));
+	connect(m_thread, SIGNAL(ready()), this, SLOT(m_thread_ready()));
 	connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateTimer_timeout));
 
 	updateTimer->setInterval(1000);
@@ -69,7 +69,7 @@ void FileParserDialog::on_stop_pushButton_clicked(bool checked)
 	m_thread->stop();
 	
 	disconnect(m_thread, SIGNAL(errorOccured()), this, SLOT(m_thread_errorOccured()));
-	disconnect(m_thread, SIGNAL(finished()), this, SLOT(m_thread_finished()));
+	disconnect(m_thread, SIGNAL(ready()), this, SLOT(m_thread_ready()));
 
 	delete m_thread;
 
@@ -79,10 +79,11 @@ void FileParserDialog::on_stop_pushButton_clicked(bool checked)
 
 void FileParserDialog::m_thread_errorOccured(QString msg)
 {
-	m_thread->wait();
 	updateTimer->stop();
 	disconnect(m_thread, SIGNAL(errorOccured()), this, SLOT(m_thread_errorOccured()));
-	disconnect(m_thread, SIGNAL(finished()), this, SLOT(m_thread_finished()));
+	disconnect(m_thread, SIGNAL(ready()), this, SLOT(m_thread_ready()));
+
+	m_thread->wait();
 
 	QString message = QString::fromLocal8Bit("Ошибка при разборе файла данных: ") + msg;
 
@@ -92,7 +93,7 @@ void FileParserDialog::m_thread_errorOccured(QString msg)
 	ui->stop_pushButton->setEnabled(false);
 }
 
-void FileParserDialog::m_thread_finished()
+void FileParserDialog::m_thread_ready()
 {
 	m_thread->wait();
 	updateTimer->stop();

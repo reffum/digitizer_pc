@@ -31,7 +31,7 @@ private slots:
 	void on_start_pushButton_clicked(bool checked = false);
 	void on_stop_pushButton_clicked(bool checked = false);
 	void m_thread_errorOccured(QString msg);
-	void m_thread_finished(void);
+	void m_thread_ready(void);
 	void updateTimer_timeout(void);
 };
 

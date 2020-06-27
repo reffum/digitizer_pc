@@ -17,6 +17,8 @@ void FileParseThread::run()
 		string filePathStr = m_filePath.toStdString();
 		
 		ParseDataFile(fileNameStr, filePathStr, m_progress, m_stop);
+
+		emit ready();
 	}
 	catch (exception e)
 	{

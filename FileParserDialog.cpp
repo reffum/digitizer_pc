@@ -11,6 +11,9 @@ FileParserDialog::FileParserDialog(QWidget* parent, Qt::WindowFlags f):
 	ui->setupUi(this);
 	setFixedSize(670, 140);
 	updateTimer = new QTimer(this);
+	connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateTimer_timeout()));
+
+	updateTimer->setInterval(500);
 }
 
 void FileParserDialog::on_file_pushButton_clicked(bool checked)
@@ -53,9 +56,7 @@ void FileParserDialog::on_start_pushButton_clicked(bool checked)
 
 	connect(m_thread, SIGNAL(errorOccured(QString)), this, SLOT(m_thread_errorOccured(QString)));
 	connect(m_thread, SIGNAL(ready()), this, SLOT(m_thread_ready()));
-	connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateTimer_timeout));
 
-	updateTimer->setInterval(1000);
 	updateTimer->start();
 
 	m_thread->start();
@@ -97,6 +98,8 @@ void FileParserDialog::m_thread_ready()
 {
 	m_thread->wait();
 	updateTimer->stop();
+
+	ui->progressBar->setValue(100);
 
 	disconnect(m_thread, SIGNAL(errorOccured()), this, SLOT(m_thread_errorOccured()));
 	disconnect(m_thread, SIGNAL(finished()), this, SLOT(m_thread_finished()));

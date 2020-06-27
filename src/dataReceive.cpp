@@ -442,7 +442,7 @@ void ParseDataFile(string fileName, string FilesPath, double &progress, bool& st
 			// Read frame size
 			b = ReadFile(
 				hDataFile,
-				Buffer,
+				&frameSize,
 				sizeof(frameSize),
 				&numberOfBytesRead,
 				NULL
@@ -467,7 +467,7 @@ void ParseDataFile(string fileName, string FilesPath, double &progress, bool& st
 			}
 
 			// Create file to frame
-			writeFileName = FilesPath + to_string(frameNum) + ".dat";
+			writeFileName = FilesPath + "/" + to_string(frameNum) + ".dat";
 
 			hWriteFile = CreateFileA(
 				writeFileName.c_str(),
@@ -506,7 +506,7 @@ void ParseDataFile(string fileName, string FilesPath, double &progress, bool& st
 					throw exception(msg.c_str());
 				}
 
-				if (numberOfBytesRead != sizeof(frameSize))
+				if (numberOfBytesRead != writeSize)
 				{
 					string msg = "Read frame " + to_string(frameNum) + " data error. Read bytes number not equal number of bytes to read";
 					throw exception(msg.c_str());
@@ -545,6 +545,7 @@ void ParseDataFile(string fileName, string FilesPath, double &progress, bool& st
 		}
 
 		CloseHandle(hDataFile);
+		hDataFile = INVALID_HANDLE_VALUE;
 	}
 	catch (exception e)
 	{

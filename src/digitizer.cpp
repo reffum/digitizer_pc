@@ -88,7 +88,7 @@ void Digitizer::StartReceive(int size)
 			{
 				try {
 					string ipStr = m_ip.toStdString();
-					ReceiveNoRealTimeData(ipStr.c_str(), TCP_DATA_PORT, size, stopNoRealTimeThread, noRealTimeSize);
+					ReceiveNoRealTimeData(ipStr.c_str(), TCP_DATA_PORT, size *1024*1024, stopNoRealTimeThread, noRealTimeSize);
 				}
 				catch (exception e)
 				{

@@ -65,7 +65,7 @@
     <item>
      <widget class="QGroupBox" name="noRealTime_groupBox">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="title">
        <string>Режим No realtime</string>

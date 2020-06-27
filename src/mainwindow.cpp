@@ -73,9 +73,7 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
 
             ui->size_spinBox->setEnabled(true);
             ui->start_pushButton->setEnabled(true);
-
-			//TODO: Comment this, until I make no-real-time receive
-            //ui->noRealTime_groupBox->setEnabled(true);
+            ui->noRealTime_groupBox->setEnabled(true);
             ui->realTime_groupBox->setEnabled(true);
             ui->test_checkBox->setEnabled(true);
             ui->save_action->setEnabled(true);

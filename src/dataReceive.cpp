@@ -315,11 +315,19 @@ void ReceiveNoRealTimeData(const char *ip, const short port, size_t size, bool& 
 	boardSockAddr.sin_addr.s_addr = inet_addr(ip);
 	boardSockAddr.sin_port = htons(port);
 
+	fd_set fd;
+	FD_ZERO(&fd);
+	FD_SET(sock, &fd);
+
 	try {
+
+		iResult = connect(sock, (SOCKADDR*)&boardSockAddr, sizeof(boardSockAddr));
+		if (iResult == SOCKET_ERROR)
+		{
+			throw exception("Connection error");
+		}
+
 		// Wait for data or stop flag
-		fd_set fd;
-		FD_ZERO(&fd);
-		FD_SET(sock, &fd);
 
 		timeval tv;
 		tv.tv_sec = 0;
@@ -334,12 +342,21 @@ void ReceiveNoRealTimeData(const char *ip, const short port, size_t size, bool& 
 
 			// Read packet size
 			do {
+				FD_ZERO(&fd);
+				FD_SET(sock, &fd);
+
 				iResult = select(0, &fd, NULL, NULL, &tv);
 
 				if (stop)
 					goto close_connection;
 
 			} while (iResult == 0);
+
+			if (iResult == SOCKET_ERROR)
+			{
+				string msg = "Read packet size error " + to_string(GetLastError());
+				throw exception(msg.c_str());
+			}
 
 			iResult = recv(sock, (char*)&packetSize, sizeof(packetSize), MSG_WAITALL);
 
@@ -354,7 +371,11 @@ void ReceiveNoRealTimeData(const char *ip, const short port, size_t size, bool& 
 			while (true)
 			{
 				do {
+					FD_ZERO(&fd);
+					FD_SET(sock, &fd);
+
 					iResult = select(0, &fd, NULL, NULL, &tv);
+
 					if (stop)
 						goto close_connection;
 				} while (iResult == 0);

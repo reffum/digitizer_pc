@@ -59,6 +59,9 @@ void MainWindow::Disconnect()
     ui->pwm_groupBox->setEnabled(false);
     ui->dds_groupBox->setEnabled(false);
     ui->connect_pushButton->setText("Подключиться");
+
+    ui->realTime_pushButton->setChecked(false);
+    ui->realTime_pushButton->setText("Стоп");
 }
 
 void MainWindow::on_connect_pushButton_clicked(bool checked)

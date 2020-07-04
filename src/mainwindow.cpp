@@ -176,17 +176,25 @@ void MainWindow::on_save_pushButton_clicked(bool checked)
 
 void MainWindow::updateTimer_timeout()
 {
-    qint64 receiveSize = m_digitizer->GetDataSize();
-    ui->receiveSize_lcdNumber->display(static_cast<int>(receiveSize));
+    try {
+        qint64 receiveSize = m_digitizer->GetDataSize();
+        ui->receiveSize_lcdNumber->display(static_cast<int>(receiveSize));
 
-    if(m_digitizer->GetConnectionState())
+        if (m_digitizer->GetConnectionState())
+        {
+            ui->rtFrames_lcdNumber->display(m_digitizer->RealTimeFrameNumber());
+
+            if (m_digitizer->RealTimeOverflow())
+                ui->ovf_indicator->setColor(Qt::red);
+            else
+                ui->ovf_indicator->setColor(Qt::green);
+        }
+    }
+    catch (DigitizerException e)
     {
-        ui->rtFrames_lcdNumber->display(m_digitizer->RealTimeFrameNumber());
-
-        if(m_digitizer->RealTimeOverflow())
-            ui->ovf_indicator->setColor(Qt::red);
-        else
-            ui->ovf_indicator->setColor(Qt::green);
+        QMessageBox::critical(this, "Ошибка", e.GetErrorMessage());
+        Disconnect();
+        m_digitizer->Disconnect();
     }
 }
 

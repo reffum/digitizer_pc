@@ -11,7 +11,8 @@ using namespace std;
 const int TCP_DATA_PORT = 1024;
 
 Digitizer::Digitizer(QObject* parent):
-    m_connectionState(false), noRealTimeSize(0), noRealTimeThread(nullptr)
+    m_connectionState(false), noRealTimeSize(0), noRealTimeThread(nullptr), 
+    realTimeThread(nullptr)
 {
     Q_UNUSED(parent)
 }
@@ -44,6 +45,8 @@ void Digitizer::Disconnect()
 {
     if(m_connectionState)
     {
+        StopReceive();
+        RealTimeStop();
         Modbus::Disconnect();
 
         m_connectionState = false;
@@ -115,6 +118,18 @@ void Digitizer::StartReceive(int size)
 
         Disconnect();
         throw DigitizerException(e.getMessage());
+    }
+}
+
+void Digitizer::StopReceive()
+{
+    if (noRealTimeThread)
+    {
+        stopNoRealTimeThread = true;
+        noRealTimeThread->wait();
+
+        delete noRealTimeThread;
+        noRealTimeThread = nullptr;
     }
 }
 
@@ -345,6 +360,9 @@ void Digitizer::RealTimeStart()
 
 void Digitizer::RealTimeStop()
 {
+    if (!realTimeThread)
+        return;
+
     try {    
 
         stopRealTimeThread = true;

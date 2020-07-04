@@ -59,6 +59,7 @@ public:
     // Start transsmit and receive packet
     // size in 64 kB
     void StartReceive(int size);
+    void StopReceive();
 
     // Disconnect from device
     void Disconnect();

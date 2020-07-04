@@ -60,8 +60,8 @@ void MainWindow::Disconnect()
     ui->dds_groupBox->setEnabled(false);
     ui->connect_pushButton->setText("Подключиться");
 
-    ui->realTime_pushButton->setChecked(false);
-    ui->realTime_pushButton->setText("Стоп");
+    ui->realTime_pushButton->setChecked(true);
+    ui->realTime_pushButton->setText("Старт");
 }
 
 void MainWindow::on_connect_pushButton_clicked(bool checked)
@@ -187,10 +187,10 @@ void MainWindow::updateTimer_timeout()
         {
             ui->rtFrames_lcdNumber->display(m_digitizer->RealTimeFrameNumber());
 
-            if (m_digitizer->RealTimeOverflow())
-                ui->ovf_indicator->setColor(Qt::red);
-            else
-                ui->ovf_indicator->setColor(Qt::green);
+            //if (m_digitizer->RealTimeOverflow())
+            //    ui->ovf_indicator->setColor(Qt::red);
+            //else
+            //    ui->ovf_indicator->setColor(Qt::green);
         }
     }
     catch (DigitizerException e)

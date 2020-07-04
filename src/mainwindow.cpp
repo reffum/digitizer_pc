@@ -183,10 +183,10 @@ void MainWindow::updateTimer_timeout()
     {
         ui->rtFrames_lcdNumber->display(m_digitizer->RealTimeFrameNumber());
 
-        //if(m_digitizer->RealTimeOverflow())
-        //    ui->ovf_indicator->setColor(Qt::red);
-        //else
-        //    ui->ovf_indicator->setColor(Qt::green);
+        if(m_digitizer->RealTimeOverflow())
+            ui->ovf_indicator->setColor(Qt::red);
+        else
+            ui->ovf_indicator->setColor(Qt::green);
     }
 }
 

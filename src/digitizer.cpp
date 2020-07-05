@@ -80,59 +80,6 @@ bool Digitizer::GetTestMode()
     }
 }
 
-void Digitizer::StartReceive(int size)
-{
-	noRealTimeSize = 0;
-
-	if (noRealTimeThread == nullptr)
-	{
-		noRealTimeThread = QThread::create(
-			[=]()
-			{
-				try {
-					string ipStr = m_ip.toStdString();
-					ReceiveNoRealTimeData(ipStr.c_str(), TCP_DATA_PORT, size *1024*1024, stopNoRealTimeThread, noRealTimeSize);
-				}
-				catch (exception e)
-				{
-					emit saveFileError(e.what());
-					Modbus::WriteRegister(CR, 0);
-				}
-			}
-		);
-	}
-
-    try {
-		stopNoRealTimeThread = false;
-
-		noRealTimeThread->start();
-
-        Modbus::WriteRegister(DSIZE, static_cast<quint16>(size >> 6));
-
-        quint16 cr = Modbus::ReadRegister(CR);
-        cr |= _CR_START;
-        Modbus::WriteRegister(CR, cr);
-
-    } catch (ModbusException e) {
-		stopNoRealTimeThread = true;
-
-        Disconnect();
-        throw DigitizerException(e.getMessage());
-    }
-}
-
-void Digitizer::StopReceive()
-{
-    if (noRealTimeThread)
-    {
-        stopNoRealTimeThread = true;
-        noRealTimeThread->wait();
-
-        delete noRealTimeThread;
-        noRealTimeThread = nullptr;
-    }
-}
-
 extern uint8_t ReceiveBuffer[];
 
 QByteArray Digitizer::GetData()
@@ -327,6 +274,61 @@ void Digitizer::WriteIoExpander(quint8 addr, quint8 data)
         throw DigitizerException(e.getMessage());
     }
 }
+
+void Digitizer::StartReceive(int size)
+{
+	noRealTimeSize = 0;
+
+	if (noRealTimeThread == nullptr)
+	{
+		noRealTimeThread = QThread::create(
+			[=]()
+			{
+				try {
+					string ipStr = m_ip.toStdString();
+					ReceiveNoRealTimeData(ipStr.c_str(), TCP_DATA_PORT, size * 1024 * 1024, stopNoRealTimeThread, noRealTimeSize);
+				}
+				catch (exception e)
+				{
+					emit saveFileError(e.what());
+					Modbus::WriteRegister(CR, 0);
+				}
+			}
+		);
+	}
+
+	try {
+		stopNoRealTimeThread = false;
+
+		noRealTimeThread->start();
+
+		Modbus::WriteRegister(DSIZE, static_cast<quint16>(size >> 6));
+
+		quint16 cr = Modbus::ReadRegister(CR);
+		cr |= _CR_START;
+		Modbus::WriteRegister(CR, cr);
+
+	}
+	catch (ModbusException e) {
+		stopNoRealTimeThread = true;
+
+		Disconnect();
+		throw DigitizerException(e.getMessage());
+	}
+}
+
+void Digitizer::StopReceive()
+{
+	if (noRealTimeThread)
+	{
+		stopNoRealTimeThread = true;
+		noRealTimeThread->wait();
+
+		delete noRealTimeThread;
+		noRealTimeThread = nullptr;
+	}
+}
+
 
 void Digitizer::RealTimeStart()
 {

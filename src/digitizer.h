@@ -56,11 +56,6 @@ public:
     bool GetTestMode();
     void SetTestMode(bool);
 
-    // Start transsmit and receive packet
-    // size in 64 kB
-    void StartReceive(int size);
-    void StopReceive();
-
     // Disconnect from device
     void Disconnect();
 
@@ -100,8 +95,14 @@ public:
 
     void WriteIoExpander(quint8 addr, quint8 data);
 
+	// Start/stop no-realtime receive transsmit and receive 
+	// size in 64 kB
+	void StartReceive(int size);
+	void StopReceive();
+
     void RealTimeStart();
     void RealTimeStop();
+
     int RealTimeFrameNumber();
     bool RealTimeOverflow();
 

@@ -30,12 +30,19 @@ private:
 
     void Disconnect();
 
+    void readSettings();
+    void writeSettings();
+
+    void closeEvent(QCloseEvent* event);
+
+    //TODO: add processing for Digitizer::noRealTimeDataReceiveComplete() signal
 private slots:
 	// Menu
 	void on_save_action_triggered(bool checked = false);
 	void on_fileParser_action_triggered(bool checked = false);
-
     void on_connect_pushButton_clicked(bool checked = false);
+    void on_noRealTime_groupBox_toggled(bool);
+    void on_realTime_groupBox_toggled(bool);
     void on_start_pushButton_clicked(bool checked = false);
     void on_save_pushButton_clicked(bool checked = false);
     void on_test_checkBox_stateChanged(int state);

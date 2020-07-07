@@ -2,9 +2,17 @@
 #include <QMessageBox>
 #include <QTimer>
 #include <QFileDialog>
+#include <qsettings>
+#include <QCloseEvent>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "FileParserDialog.h"
+
+const QString OrganizationName = "ITMO";
+const QString ApplicationName = "Digitizer";
+
+// Settings keys
+const QString SettingsKeyRealTime = "RealTime";
 
 // The path where file is saved, when user push button "Сохранить"
 const QString DefaultSaveFile = "C:/Project/1.dat";
@@ -36,12 +44,54 @@ MainWindow::MainWindow(QWidget *parent)
     updateTimer->start();
 
     m_digitizer = new Digitizer(this);
-    connect(m_digitizer, SIGNAL(saveFileError(QString)), this, SLOT(m_digitizer_saveFileError(QString)));
+    connect(m_digitizer, SIGNAL(dataReceveError(QString)), this, SLOT(m_digitizer_saveFileError(QString)));
+
+    readSettings();
+}
+
+void MainWindow::readSettings()
+{
+    QSettings settings(OrganizationName, ApplicationName);
+
+    bool realTime = settings.value(SettingsKeyRealTime).toBool();
+
+    QSignalBlocker b0(ui->noRealTime_groupBox);
+    QSignalBlocker b1(ui->realTime_groupBox);
+
+    if (realTime)
+    {
+        ui->noRealTime_groupBox->setChecked(true);
+        ui->realTime_groupBox->setChecked(false);
+    }
+    else
+    {
+        ui->noRealTime_groupBox->setChecked(false);
+        ui->realTime_groupBox->setChecked(true);
+    }
+}
+
+void MainWindow::writeSettings()
+{
+    QSettings settings(OrganizationName, ApplicationName);
+
+    bool realTime = ui->realTime_groupBox->isChecked();
+
+    settings.setValue(SettingsKeyRealTime, realTime);
+}
+
+void MainWindow::closeEvent(QCloseEvent* e)
+{
+    writeSettings();
+
+    m_digitizer->Disconnect();
+
+    e->accept();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete m_digitizer;
 }
 
 void MainWindow::Disconnect()
@@ -126,6 +176,28 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
         QMessageBox::critical(this, "Ошибка подключения", e.GetErrorMessage());
         Disconnect();
         m_digitizer->Disconnect();
+    }
+}
+
+void MainWindow::on_realTime_groupBox_toggled(bool on)
+{
+    QSignalBlocker blocker(ui->noRealTime_groupBox);
+
+    if (on)
+    {
+        m_digitizer->StopReceive();
+        ui->noRealTime_groupBox->setChecked(false);
+        //TODO: disconnect noRealTimeDataReceiveComplete
+    }
+}
+
+void MainWindow::on_noRealTime_groupBox_toggled(bool on)
+{
+    QSignalBlocker blocker(ui->realTime_groupBox);
+    if (on)
+    {
+        m_digitizer->RealTimeStop();
+        ui->noRealTime_groupBox->setChecked(false);
     }
 }
 
@@ -229,6 +301,8 @@ void MainWindow::on_save_action_triggered(bool checked)
 
 void MainWindow::on_fileParser_action_triggered(bool checked)
 {
+    Q_UNUSED(checked);
+
 	FileParserDialog* dialog = new FileParserDialog(this);
 	dialog->show();
 }

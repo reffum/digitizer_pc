@@ -14,7 +14,8 @@ Digitizer::Digitizer(QObject* parent):
     m_connectionState(false), noRealTimeSize(0), noRealTimeThread(nullptr), 
     realTimeThread(nullptr)
 {
-    Q_UNUSED(parent)
+    Q_UNUSED(parent);
+    m_receiveState = RECEIVE_NONE;
 }
 
 Digitizer::~Digitizer()
@@ -41,6 +42,7 @@ void Digitizer::Connect(QString ip)
     }
 }
 
+// TODO: Change this function
 void Digitizer::Disconnect()
 {
     if(m_connectionState)
@@ -277,58 +279,65 @@ void Digitizer::WriteIoExpander(quint8 addr, quint8 data)
 
 void Digitizer::StartReceive(int size)
 {
+    Q_ASSERT(m_receiveState == RECEIVE_NONE);
+
 	noRealTimeSize = 0;
 
-	if (noRealTimeThread == nullptr)
-	{
-		noRealTimeThread = QThread::create(
-			[=]()
-			{
-				try {
-					string ipStr = m_ip.toStdString();
-					ReceiveNoRealTimeData(ipStr.c_str(), TCP_DATA_PORT, size * 1024 * 1024, stopNoRealTimeThread, noRealTimeSize);
-				}
-				catch (exception e)
-				{
-					emit saveFileError(e.what());
-					Modbus::WriteRegister(CR, 0);
-				}
+	noRealTimeThread = QThread::create(
+		[=]()
+		{
+			try {
+				string ipStr = m_ip.toStdString();
+				ReceiveNoRealTimeData(ipStr.c_str(), TCP_DATA_PORT, size * 1024 * 1024, stopNoRealTimeThread, noRealTimeSize);
+                emit noRealTimeDataReceiveComplete();
 			}
-		);
-	}
+			catch (exception e)
+			{
+				emit dataReceveError(e.what());
+			}
+
+            m_receiveState = RECEIVE_NONE;
+            deleteLater();
+		}
+	);
 
 	try {
 		stopNoRealTimeThread = false;
 
+        m_receiveState = RECEIVE_NO_REAL_TIME;
 		noRealTimeThread->start();
 
 		Modbus::WriteRegister(DSIZE, static_cast<quint16>(size >> 6));
-
 		quint16 cr = Modbus::ReadRegister(CR);
-		cr |= _CR_START;
-		Modbus::WriteRegister(CR, cr);
 
+		cr |= _CR_START;
+		Modbus::WriteRegister(CR, cr);        
 	}
 	catch (ModbusException e) {
+        // Stop the thread
 		stopNoRealTimeThread = true;
+        noRealTimeThread->wait();
 
-		Disconnect();
+        Q_ASSERT(m_receiveState == RECEIVE_NONE);
+
+        Disconnect();
+
 		throw DigitizerException(e.getMessage());
 	}
 }
 
 void Digitizer::StopReceive()
 {
-	if (noRealTimeThread)
-	{
-		stopNoRealTimeThread = true;
-		noRealTimeThread->wait();
+    if (m_receiveState == RECEIVE_NONE)
+        return;
 
-		delete noRealTimeThread;
-		noRealTimeThread = nullptr;
-	}
+    Q_ASSERT(m_receiveState != RECEIVE_REAL_TIME);
+    
+    // Stop thread
+	stopNoRealTimeThread = true;
+	noRealTimeThread->wait();
+    noRealTimeSize = 0;
 }
-
 
 void Digitizer::RealTimeStart()
 {
@@ -344,14 +353,27 @@ void Digitizer::RealTimeStart()
 			}
 			catch (exception e)
 			{
-				emit saveFileError(e.what());
-				Modbus::WriteRegister(CR, 0);
+				emit dataReceveError(e.what());
 			}
+
+            // Disable real-time data send
+            // Ignore possible MODBUS errors
+            try {
+                quint16 cr = Modbus::ReadRegister(CR);
+                cr &= ~(_CR_RT);
+                Modbus::WriteRegister(CR, cr);
+            }
+            catch (ModbusException e)
+            {
+                qDebug() << "Modbus Error in realTimeThread: " << e.getMessage();
+            }
+            
+            m_receiveState = RECEIVE_NONE;
+            deleteLater();
 		}
 	);
 
     try {
-
 		Modbus::WriteRegister(CR, _CR_RT);
     } catch (ModbusException e) {
         throw DigitizerException(e.getMessage());
@@ -362,17 +384,14 @@ void Digitizer::RealTimeStart()
 
 void Digitizer::RealTimeStop()
 {
-    if (!realTimeThread)
-        return;
+    Q_ASSERT(m_receiveState == RECEIVE_REAL_TIME);
 
     try {    
-
         stopRealTimeThread = true;
         realTimeThread->wait();
-		
-		delete realTimeThread;
 
-        Modbus::WriteRegister(CR, 0);
+        Q_ASSERT(m_receiveState == RECEIVE_NONE);
+
     } catch (ModbusException e) {
         throw DigitizerException(e.getMessage());
     }

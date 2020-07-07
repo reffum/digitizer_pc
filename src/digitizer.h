@@ -1,6 +1,7 @@
 #ifndef DIGITIZER_H
 #define DIGITIZER_H
 
+#include <atomic>
 #include <QString>
 #include <QThread>
 #include "digitizerexception.h"
@@ -19,8 +20,11 @@ class Digitizer : public QObject
 
     bool m_connectionState;
 
+    // Stop-flags for real-time and no real-time receive data threads
     bool stopRealTimeThread = false;
 	bool stopNoRealTimeThread = false;
+
+    // Receive data threads
     QThread *realTimeThread;
 	QThread* noRealTimeThread;
 
@@ -32,6 +36,10 @@ class Digitizer : public QObject
 
 	// Received data size in no real-time mode
 	size_t noRealTimeSize;
+
+    // Data receive state
+    enum ReceiveState {RECEIVE_NONE, RECEIVE_REAL_TIME, RECEIVE_NO_REAL_TIME};
+    std::atomic<enum ReceiveState> m_receiveState;
 
 public:
     Digitizer(QObject* parent = nullptr);
@@ -107,7 +115,11 @@ public:
     bool RealTimeOverflow();
 
 signals:
-    void saveFileError(QString msg);
+    // Emit in case of data receive or write to file error.
+    void dataReceveError(QString msg);
+
+    // Emit when no real-time data complete
+    void noRealTimeDataReceiveComplete();
 };
 
 #endif // DIGITIZER_H

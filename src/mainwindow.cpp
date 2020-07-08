@@ -46,6 +46,10 @@ MainWindow::MainWindow(QWidget *parent)
     m_digitizer = new Digitizer(this);
     connect(m_digitizer, SIGNAL(dataReceveError(QString)), this, SLOT(m_digitizer_saveFileError(QString)));
 
+    connect(m_digitizer, SIGNAL(noRealTimeDataReceiveComplete()),
+        this, SLOT(m_digitizer_noRealTimeDataReceiveComplete()));
+
+
     readSettings();
 }
 
@@ -187,7 +191,6 @@ void MainWindow::on_realTime_groupBox_toggled(bool on)
     {
         m_digitizer->StopReceive();
         ui->noRealTime_groupBox->setChecked(false);
-        //TODO: disconnect noRealTimeDataReceiveComplete
     }
 }
 
@@ -219,10 +222,18 @@ void MainWindow::on_start_pushButton_clicked(bool checked)
 
         m_digitizer->StartReceive(size);
 
+        // Disable "Старт" button.
+        ui->start_pushButton->setEnabled(false);
+
     } catch (DigitizerException e) {
         QMessageBox::critical(this, "Ошибка", e.GetErrorMessage());
         Disconnect();
     }
+}
+
+void MainWindow::m_digitizer_noRealTimeDataReceiveComplete()
+{
+    ui->start_pushButton->setEnabled(true);
 }
 
 void MainWindow::on_save_pushButton_clicked(bool checked)
@@ -259,10 +270,10 @@ void MainWindow::updateTimer_timeout()
         {
             ui->rtFrames_lcdNumber->display(m_digitizer->RealTimeFrameNumber());
 
-            //if (m_digitizer->RealTimeOverflow())
-            //    ui->ovf_indicator->setColor(Qt::red);
-            //else
-            //    ui->ovf_indicator->setColor(Qt::green);
+            if (m_digitizer->RealTimeOverflow())
+                ui->ovf_indicator->setColor(Qt::red);
+            else
+                ui->ovf_indicator->setColor(Qt::green);
         }
     }
     catch (DigitizerException e)

@@ -35,7 +35,6 @@ private:
 
     void closeEvent(QCloseEvent* event);
 
-    //TODO: add processing for Digitizer::noRealTimeDataReceiveComplete() signal
 private slots:
 	// Menu
 	void on_save_action_triggered(bool checked = false);
@@ -56,5 +55,6 @@ private slots:
     void on_realTime_pushButton_clicked(bool checked = false);
 	
     void m_digitizer_saveFileError(QString msg);
+    void m_digitizer_noRealTimeDataReceiveComplete();
 };
 #endif // MAINWINDOW_H

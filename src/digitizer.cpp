@@ -42,17 +42,27 @@ void Digitizer::Connect(QString ip)
     }
 }
 
-// TODO: Change this function
 void Digitizer::Disconnect()
 {
-    if(m_connectionState)
-    {
-        StopReceive();
-        RealTimeStop();
+    try {
+        if (m_receiveState == RECEIVE_NO_REAL_TIME)
+        {
+            StopReceive();
+        }
+        else if (m_receiveState == RECEIVE_REAL_TIME)
+        {
+            RealTimeStop();
+        }
+        
         Modbus::Disconnect();
 
         m_connectionState = false;
     }
+    catch (DigitizerException e)
+    {
+        qDebug() << "Digitizer::Disconnect() exceptin: " << e.GetErrorMessage();
+    }
+    
 }
 
 void Digitizer::SetTestMode(bool b)

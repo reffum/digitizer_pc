@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>310</width>
-    <height>672</height>
+    <width>306</width>
+    <height>692</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -15,6 +15,11 @@
     <width>0</width>
     <height>0</height>
    </size>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>8</pointsize>
+   </font>
   </property>
   <property name="windowTitle">
    <string>Оцифровщик </string>
@@ -24,6 +29,12 @@
     <normaloff>images/app.ico</normaloff>images/app.ico</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>0</height>
+    </size>
+   </property>
    <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
      <widget class="QGroupBox" name="groupBox">
@@ -65,7 +76,7 @@
     <item>
      <widget class="QGroupBox" name="noRealTime_groupBox">
       <property name="enabled">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <property name="title">
        <string>Режим No realtime</string>
@@ -397,7 +408,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>310</width>
+     <width>306</width>
      <height>21</height>
     </rect>
    </property>

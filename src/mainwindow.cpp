@@ -95,7 +95,6 @@ void MainWindow::closeEvent(QCloseEvent* e)
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete m_digitizer;
 }
 
 void MainWindow::Disconnect()
@@ -200,7 +199,8 @@ void MainWindow::on_noRealTime_groupBox_toggled(bool on)
     if (on)
     {
         m_digitizer->RealTimeStop();
-        ui->noRealTime_groupBox->setChecked(false);
+        ui->noRealTime_groupBox->setChecked(true);
+        ui->realTime_groupBox->setChecked(false);
     }
 }
 

@@ -307,13 +307,13 @@ void Digitizer::StartReceive(int size)
 			}
 
             m_receiveState = RECEIVE_NONE;
-            deleteLater();
 		}
 	);
 
 	try {
 		stopNoRealTimeThread = false;
 
+        //TODO: Take out in separate method with separate button.
         m_receiveState = RECEIVE_NO_REAL_TIME;
 		noRealTimeThread->start();
 
@@ -346,6 +346,7 @@ void Digitizer::StopReceive()
     // Stop thread
 	stopNoRealTimeThread = true;
 	noRealTimeThread->wait();
+    delete noRealTimeThread;
     noRealTimeSize = 0;
 }
 
@@ -379,7 +380,6 @@ void Digitizer::RealTimeStart()
             }
             
             m_receiveState = RECEIVE_NONE;
-            deleteLater();
 		}
 	);
 
@@ -389,16 +389,19 @@ void Digitizer::RealTimeStart()
         throw DigitizerException(e.getMessage());
     }
 
+    m_receiveState = RECEIVE_REAL_TIME;
     realTimeThread->start();
 }
 
 void Digitizer::RealTimeStop()
 {
-    Q_ASSERT(m_receiveState == RECEIVE_REAL_TIME);
+    if (m_receiveState != RECEIVE_REAL_TIME)
+        return;
 
     try {    
         stopRealTimeThread = true;
         realTimeThread->wait();
+        delete realTimeThread;
 
         Q_ASSERT(m_receiveState == RECEIVE_NONE);
 

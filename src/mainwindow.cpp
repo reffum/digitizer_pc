@@ -485,7 +485,7 @@ void MainWindow::m_digitizer_saveFileError(QString msg)
             msg);
 
         ui->realTime_pushButton->setChecked(false);
-        ui->realTime_pushButton->setText("Стоп");
+        ui->realTime_pushButton->setText("Старт");
     }
     else
     {

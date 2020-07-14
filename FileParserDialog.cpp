@@ -66,11 +66,11 @@ void FileParserDialog::on_stop_pushButton_clicked(bool checked)
 {
 	Q_UNUSED(checked);
 
-	updateTimer->stop();
-	m_thread->stop();
-	
 	disconnect(m_thread, SIGNAL(errorOccured()), this, SLOT(m_thread_errorOccured()));
 	disconnect(m_thread, SIGNAL(ready()), this, SLOT(m_thread_ready()));
+
+	updateTimer->stop();
+	m_thread->stop();
 
 	delete m_thread;
 

@@ -96,7 +96,9 @@ extern uint8_t ReceiveBuffer[];
 
 QByteArray Digitizer::GetData()
 {
-	return QByteArray((char*)ReceiveBuffer, noRealTimeSize);
+    size_t s = noRealTimeSize;
+    noRealTimeSize = 0;
+	return QByteArray((char*)ReceiveBuffer, s);
 }
 
 qint64 Digitizer::GetDataSize()
@@ -347,7 +349,6 @@ void Digitizer::StopReceive()
 	stopNoRealTimeThread = true;
 	noRealTimeThread->wait();
     delete noRealTimeThread;
-    noRealTimeSize = 0;
 }
 
 void Digitizer::RealTimeStart()

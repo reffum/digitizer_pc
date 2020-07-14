@@ -62,7 +62,7 @@ void MainWindow::readSettings()
     QSignalBlocker b0(ui->noRealTime_groupBox);
     QSignalBlocker b1(ui->realTime_groupBox);
 
-    if (realTime)
+    if (!realTime)
     {
         ui->noRealTime_groupBox->setChecked(true);
         ui->realTime_groupBox->setChecked(false);

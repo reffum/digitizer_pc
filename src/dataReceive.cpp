@@ -539,8 +539,16 @@ void ParseDataFile(string fileName, string FilesPath, double &progress, bool& st
 
 				if (numberOfBytesRead != writeSize)
 				{
-					string msg = "Read frame " + to_string(frameNum) + " data error. Read bytes number not equal number of bytes to read";
-					throw exception(msg.c_str());
+					// We are reach end of file.
+					b = WriteFile(
+						hWriteFile,
+						Buffer,
+						numberOfBytesRead,
+						NULL,
+						NULL
+					);
+
+					goto exit;
 				}
 
 				b = WriteFile(

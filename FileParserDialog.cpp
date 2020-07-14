@@ -22,7 +22,7 @@ void FileParserDialog::on_file_pushButton_clicked(bool checked)
 
 		m_fileName = QFileDialog::getOpenFileName(
 			this,
-			tr("ќткрыть файл"),
+			QString::fromLocal8Bit("ќткрыть файл"),
 			QDir::homePath(),
 			tr("Data file (*.dat)")
 		);
@@ -35,9 +35,9 @@ void FileParserDialog::on_path_pushButton_clicked(bool checked)
 	Q_UNUSED(checked)
 
 	m_filePath = QFileDialog::getExistingDirectory(this,
-									tr("”кажите каталок"),
-									QDir::homePath()
-								);
+							QString::fromLocal8Bit("”кажите каталок"),
+							QDir::homePath()
+							);
 	ui->path_lineEdit->setText(m_filePath);
 }
 

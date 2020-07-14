@@ -94,6 +94,7 @@ void MainWindow::closeEvent(QCloseEvent* e)
 
 MainWindow::~MainWindow()
 {
+    delete m_digitizer;
     delete ui;
 }
 
@@ -206,34 +207,48 @@ void MainWindow::on_noRealTime_groupBox_toggled(bool on)
 
 void MainWindow::on_start_pushButton_clicked(bool checked)
 {
-    Q_UNUSED(checked)
+    if (checked)
+    {
 
-    try {
-        int size = ui->size_spinBox->value();
+        try {
+            int size = ui->size_spinBox->value();
 
-        if(size < Digitizer::MinDataSize)
-        {
-            QMessageBox::warning(this, "Ошибка", "Размер данных должен быть больше 64 кБ");
-            return;
+            if (size < Digitizer::MinDataSize)
+            {
+                QMessageBox::warning(this, "Ошибка", "Размер данных должен быть больше 64 кБ");
+                return;
+            }
+
+            size = size - (size % ui->size_spinBox->singleStep());
+            ui->size_spinBox->setValue(size);
+
+            m_digitizer->StartReceive(size);
+
+            // Disable "Старт" button.
+            ui->start_pushButton->setText("Стоп");
+            ui->save_pushButton->setEnabled(false);
+            ui->save_action->setEnabled(false);
         }
-
-        size = size - (size % ui->size_spinBox->singleStep());
-        ui->size_spinBox->setValue(size);
-
-        m_digitizer->StartReceive(size);
-
-        // Disable "Старт" button.
-        ui->start_pushButton->setEnabled(false);
-
-    } catch (DigitizerException e) {
-        QMessageBox::critical(this, "Ошибка", e.GetErrorMessage());
-        Disconnect();
+        catch (DigitizerException e) {
+            QMessageBox::critical(this, "Ошибка", e.GetErrorMessage());
+            Disconnect();
+        }
+    }
+    else
+    {
+        m_digitizer->StopReceive();
+        ui->save_pushButton->setEnabled(true);
+        ui->save_action->setEnabled(true);
+        ui->start_pushButton->setText("Старт");
     }
 }
 
 void MainWindow::m_digitizer_noRealTimeDataReceiveComplete()
 {
-    ui->start_pushButton->setEnabled(true);
+    QSignalBlocker b(ui->start_pushButton);
+
+    ui->start_pushButton->setChecked(false);
+    ui->start_pushButton->setText("Старт");
 }
 
 void MainWindow::on_save_pushButton_clicked(bool checked)
@@ -458,12 +473,32 @@ void MainWindow::on_realTime_pushButton_clicked(bool checked)
 
 void MainWindow::m_digitizer_saveFileError(QString msg)
 {
-    QSignalBlocker(ui->realTime_pushButton);
+    // Error processing depend on current mode, no real-time or real-time
 
-    QMessageBox::critical(this,
-                          "Ошибка",
-                          msg);
+    if (ui->realTime_groupBox->isChecked())
+    {
+        // Real-time mode
+        QSignalBlocker(ui->realTime_pushButton);
 
-    ui->realTime_pushButton->setChecked(false);
-    ui->realTime_pushButton->setText("Стоп");
+        QMessageBox::critical(this,
+            "Ошибка",
+            msg);
+
+        ui->realTime_pushButton->setChecked(false);
+        ui->realTime_pushButton->setText("Стоп");
+    }
+    else
+    {
+        // No realtime mode
+        QSignalBlocker b(ui->noRealTime_groupBox);
+
+        QMessageBox::critical(this,
+            "Ошибка",
+            msg);
+
+        ui->start_pushButton->setChecked(true);
+        ui->start_pushButton->setText("Старт");
+        ui->save_pushButton->setEnabled(true);
+        ui->save_action->setEnabled(true);
+    }
 }

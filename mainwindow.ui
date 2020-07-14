@@ -122,7 +122,10 @@
             <bool>false</bool>
            </property>
            <property name="text">
-            <string>Запуск приема</string>
+            <string>Старт</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
            </property>
           </widget>
          </item>

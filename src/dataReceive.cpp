@@ -194,15 +194,17 @@ void ReceiveRealTimeData(const char* ip, const short port, bool& stop, int& file
 			uint32_t packetSize, currentSize;
 
 			// Wait for data or stop flag
-			fd_set fd;
-			FD_ZERO(&fd);
-			FD_SET(sock, &fd);
 
-			timeval tv;
-			tv.tv_sec = 0;
-			tv.tv_usec = Timeout;
 
 			do {
+				fd_set fd;
+				FD_ZERO(&fd);
+				FD_SET(sock, &fd);
+
+				timeval tv;
+				tv.tv_sec = 0;
+				tv.tv_usec = Timeout;
+
 				iResult = select(0, &fd, NULL, NULL, &tv);
 
 				if (stop)
@@ -236,6 +238,14 @@ void ReceiveRealTimeData(const char* ip, const short port, bool& stop, int& file
 				char* currentAddress = (char*)ReceiveBuffer;
 
 				do {
+					fd_set fd;
+					FD_ZERO(&fd);
+					FD_SET(sock, &fd);
+
+					timeval tv;
+					tv.tv_sec = 0;
+					tv.tv_usec = Timeout;
+
 					iResult = select(0, &fd, NULL, NULL, &tv);
 					if (stop)
 						goto close_connection;

@@ -120,4 +120,7 @@
       <Filter>images</Filter>
     </Image>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="TODO.txt" />
+  </ItemGroup>
 </Project>

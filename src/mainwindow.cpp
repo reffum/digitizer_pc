@@ -249,6 +249,7 @@ void MainWindow::m_digitizer_noRealTimeDataReceiveComplete()
 
     ui->start_pushButton->setChecked(false);
     ui->start_pushButton->setText("Старт");
+    ui->save_pushButton->setEnabled(true);
 }
 
 void MainWindow::on_save_pushButton_clicked(bool checked)

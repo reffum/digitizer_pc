@@ -269,10 +269,18 @@
         </widget>
        </item>
        <item row="3" column="1">
-        <widget class="QSpinBox" name="levelSyncStartN_spinBox"/>
+        <widget class="QSpinBox" name="levelSyncStartN_spinBox">
+         <property name="maximum">
+          <number>65535</number>
+         </property>
+        </widget>
        </item>
        <item row="4" column="1">
-        <widget class="QSpinBox" name="levelSyncStopN_spinBox"/>
+        <widget class="QSpinBox" name="levelSyncStopN_spinBox">
+         <property name="maximum">
+          <number>65535</number>
+         </property>
+        </widget>
        </item>
        <item row="0" column="1">
         <widget class="QCheckBox" name="levelSyncEnable_checkBox">
@@ -479,7 +487,7 @@
      <x>0</x>
      <y>0</y>
      <width>306</width>
-     <height>19</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="file_menu">

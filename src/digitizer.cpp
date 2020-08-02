@@ -385,7 +385,9 @@ void Digitizer::RealTimeStart()
 	);
 
     try {
-		Modbus::WriteRegister(CR, _CR_RT);
+        quint16 cr = Modbus::ReadRegister(CR);
+        cr |= _CR_RT;
+		Modbus::WriteRegister(CR,cr);
     } catch (ModbusException e) {
         throw DigitizerException(e.getMessage());
     }

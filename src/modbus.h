@@ -24,10 +24,15 @@ const quint16 DDS_FREQ_H = 15;
 const quint16 DDS_FREQ_L = 16;
 const quint16 DDS_AMP = 17;
 const quint16 IO_EXP_REG = 18;
+const quint16 LS_START_THR = 19;
+const quint16 LS_STOP_THR = 20;
+const quint16 LS_N_START = 21;
+const quint16 LS_N_STOP = 22;
 
 const quint16 _CR_START = 1;
 const quint16 _CR_TEST = 2;
 const quint16 _CR_RT = 4;
+const quint16 _CR_LS = 8;
 
 const quint16 _SR_RT_OVF = 1;
 

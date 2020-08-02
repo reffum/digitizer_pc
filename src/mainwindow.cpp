@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
       m_digitizer(nullptr)
 {
     ui->setupUi(this);
-    setFixedSize(310, 700);
+    setFixedSize(310, 880);
 
     m_connectIndicator = new QIndicator(this);
     m_connectIndicator->setColor(Qt::red);
@@ -112,6 +112,7 @@ void MainWindow::Disconnect()
     ui->clkdistSpi_pushButton->setEnabled(false);
     ui->pwm_groupBox->setEnabled(false);
     ui->dds_groupBox->setEnabled(false);
+	ui->levelSync_groupBox->setEnabled(false);
     ui->connect_pushButton->setText("Подключиться");
 
     ui->realTime_pushButton->setChecked(true);
@@ -139,6 +140,7 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
             ui->ioExp_pushButton->setEnabled(true);
             ui->pwm_groupBox->setEnabled(true);
             ui->dds_groupBox->setEnabled(true);
+			ui->levelSync_groupBox->setEnabled(true);
 
             ui->connect_pushButton->setText("Отключиться");
             m_connectIndicator->setColor(Qt::green);
@@ -170,6 +172,18 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
             QSignalBlocker realTime_pushButtonBlocker(ui->realTime_pushButton);
             ui->realTime_pushButton->setChecked(false);
             ui->realTime_pushButton->setText("Старт");
+
+			QSignalBlocker levelSyncBlocker(ui->levelSyncEnable_checkBox);
+			QSignalBlocker levelSyncStartThrBlocker(ui->levelSyncStartThr_spinBox);
+			QSignalBlocker levelSyncStopThrBlocker(ui->levelSyncStopN_spinBox);
+			QSignalBlocker levelSyncNStartBlocker(ui->levelSyncStartN_spinBox);
+			QSignalBlocker levelSyncNStopBlocker(ui->levelSyncStopN_spinBox);
+
+			ui->levelSyncEnable_checkBox->setChecked(m_digitizer->LevelSyncIsEnabled() ? Qt::Checked : Qt::Unchecked);
+			ui->levelSyncStartThr_spinBox->setValue(m_digitizer->GetLevelSyncStartThr());
+			ui->levelSyncStopThr_spinBox->setValue(m_digitizer->GetLevelSyncStopThr());
+			ui->levelSyncStartN_spinBox->setValue(m_digitizer->GetLevelSyncStartN());
+			ui->levelSyncStopN_spinBox->setValue(m_digitizer->GetLevelSyncStopN());
         }
         else
         {
@@ -502,4 +516,67 @@ void MainWindow::m_digitizer_saveFileError(QString msg)
         ui->save_pushButton->setEnabled(true);
         ui->save_action->setEnabled(true);
     }
+}
+
+void MainWindow::on_levelSyncEnable_checkBox_stateChanged(int state)
+{
+	try {
+		m_digitizer->LevelSyncEnable(state == Qt::Checked);
+	}
+	catch (DigitizerException e)
+	{
+		QMessageBox::critical(this,
+			"Ошибка",
+			QString("Ошибка при установке Синхронизации по уровню (%1)").arg(e.GetErrorMessage()));
+	}
+}
+void MainWindow::on_levelSyncStartThr_spinBox_valueChanged(int i)
+{
+	try {
+		m_digitizer->SetLevelSyncStartThr(i);
+	}
+	catch (DigitizerException e)
+	{
+		QMessageBox::critical(this,
+			"Ошибка",
+			QString("Ошибка при установке Синхронизации по уровню (%1)").arg(e.GetErrorMessage()));
+	}
+}
+
+void MainWindow::on_levelSyncStopThr_spinBox_valueChanged(int i)
+{
+	try {
+		m_digitizer->SetLevelSyncStopThr(i);
+	}
+	catch (DigitizerException e)
+	{
+		QMessageBox::critical(this,
+			"Ошибка",
+			QString("Ошибка при установке Синхронизации по уровню (%1)").arg(e.GetErrorMessage()));
+	}
+}
+void MainWindow::on_levelSyncStartN_spinBox_valueChanged(int i)
+{
+	try {
+		m_digitizer->SetLevelSyncStartN(i);
+	}
+	catch (DigitizerException e)
+	{
+		QMessageBox::critical(this,
+			"Ошибка",
+			QString("Ошибка при установке Синхронизации по уровню (%1)").arg(e.GetErrorMessage()));
+	}
+}
+
+void MainWindow::on_levelSyncStopN_spinBox_valueChanged(int i)
+{
+	try {
+		m_digitizer->SetLevelSyncStopN(i);
+	}
+	catch (DigitizerException e)
+	{
+		QMessageBox::critical(this,
+			"Ошибка",
+			QString("Ошибка при установке Синхронизации по уровню (%1)").arg(e.GetErrorMessage()));
+	}
 }

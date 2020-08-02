@@ -424,3 +424,121 @@ bool Digitizer::RealTimeOverflow()
         throw DigitizerException(e.getMessage());
     }
 }
+
+void Digitizer::LevelSyncEnable(bool b)
+{
+	try {
+		quint16 cr = Modbus::ReadRegister(CR);
+
+		if (b)
+			cr |= _CR_LS;
+		else
+			cr &= _CR_LS;
+
+		Modbus::WriteRegister(CR, cr);
+	}
+	catch (ModbusException e)
+	{
+		throw DigitizerException(e.getMessage());
+	}
+}
+
+bool Digitizer::LevelSyncIsEnabled()
+{
+	try {
+		quint16 cr = Modbus::ReadRegister(CR);
+
+		return cr & _CR_LS;
+	}
+	catch (ModbusException e)
+	{
+		throw DigitizerException(e.getMessage());
+	}
+}
+
+void Digitizer::SetLevelSyncStartThr(quint16 v)
+{
+	try {
+		Modbus::WriteRegister(LS_START_THR, v);
+	}
+	catch (ModbusException e)
+	{
+		throw DigitizerException(e.getMessage());
+	}
+}
+
+quint16 Digitizer::GetLevelSyncStartThr()
+{
+	try {
+		return Modbus::ReadRegister(LS_START_THR);
+	}
+	catch (ModbusException e)
+	{
+		throw DigitizerException(e.getMessage());
+	}
+}
+
+void Digitizer::SetLevelSyncStopThr(quint16 v)
+{
+	try {
+		Modbus::WriteRegister(LS_STOP_THR, v);
+	}
+	catch (ModbusException e)
+	{
+		throw DigitizerException(e.getMessage());
+	}
+}
+
+quint16 Digitizer::GetLevelSyncStopThr()
+{
+	try {
+		return Modbus::ReadRegister(LS_STOP_THR);
+	}
+	catch (ModbusException e)
+	{
+		throw DigitizerException(e.getMessage());
+	}
+}
+
+void Digitizer::SetLevelSyncStartN(quint16 v)
+{
+	try {
+		Modbus::WriteRegister(LS_N_START, v);
+	}
+	catch (ModbusException e)
+	{
+		throw DigitizerException(e.getMessage());
+	}
+}
+
+quint16 Digitizer::GetLevelSyncStartN()
+{
+	try {
+		return Modbus::ReadRegister(LS_N_START);
+	}
+	catch (ModbusException e)
+	{
+		throw DigitizerException(e.getMessage());
+	}
+}
+
+void Digitizer::SetLevelSyncStopN(quint16 v)
+{
+	try {
+		Modbus::WriteRegister(LS_N_STOP, v);
+	}
+	catch (ModbusException e)
+	{
+		throw DigitizerException(e.getMessage());
+	}
+}
+quint16 Digitizer::GetLevelSyncStopN()
+{
+	try {
+		return Modbus::ReadRegister(LS_N_STOP);
+	}
+	catch (ModbusException e)
+	{
+		throw DigitizerException(e.getMessage());
+	}
+}

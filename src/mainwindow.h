@@ -53,6 +53,12 @@ private slots:
     void on_dds_pushButton_clicked(bool checked = false);
     void on_ioExp_pushButton_clicked(bool checked = false);
     void on_realTime_pushButton_clicked(bool checked = false);
+
+	void on_levelSyncEnable_checkBox_stateChanged(int state);
+	void on_levelSyncStartThr_spinBox_valueChanged(int i);
+	void on_levelSyncStopThr_spinBox_valueChanged(int i);
+	void on_levelSyncStartN_spinBox_valueChanged(int i);
+	void on_levelSyncStopN_spinBox_valueChanged(int i);
 	
     void m_digitizer_saveFileError(QString msg);
     void m_digitizer_noRealTimeDataReceiveComplete();

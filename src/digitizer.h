@@ -114,6 +114,22 @@ public:
     int RealTimeFrameNumber();
     bool RealTimeOverflow();
 
+	// Level sync control
+	void LevelSyncEnable(bool);
+	bool LevelSyncIsEnabled();
+
+	void SetLevelSyncStartThr(quint16);
+	quint16 GetLevelSyncStartThr();
+
+	void SetLevelSyncStopThr(quint16);
+	quint16 GetLevelSyncStopThr();
+
+	void SetLevelSyncStartN(quint16);
+	quint16 GetLevelSyncStartN();
+
+	void SetLevelSyncStopN(quint16);
+	quint16 GetLevelSyncStopN();
+
 signals:
     // Emit in case of data receive or write to file error.
     void dataReceveError(QString msg);

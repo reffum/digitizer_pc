@@ -247,41 +247,6 @@
        <string>Синхронизация по уровню</string>
       </property>
       <layout class="QFormLayout" name="formLayout_3">
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_9">
-         <property name="text">
-          <string>Уровень запуска</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QSpinBox" name="levelSyncStartThr_spinBox">
-         <property name="maximum">
-          <number>65535</number>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QSpinBox" name="levelSyncStopThr_spinBox">
-         <property name="maximum">
-          <number>65535</number>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QSpinBox" name="levelSyncStartN_spinBox">
-         <property name="maximum">
-          <number>65535</number>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QSpinBox" name="levelSyncStopN_spinBox">
-         <property name="maximum">
-          <number>65535</number>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="1">
         <widget class="QCheckBox" name="levelSyncEnable_checkBox">
          <property name="text">
@@ -289,24 +254,31 @@
          </property>
         </widget>
        </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>Порог, отсчеты АЦП</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QSpinBox" name="levelSyncThr_spinBox">
+         <property name="maximum">
+          <number>65535</number>
+         </property>
+        </widget>
+       </item>
        <item row="2" column="0">
         <widget class="QLabel" name="label_10">
          <property name="text">
-          <string>Уровено остановки</string>
+          <string>Кол-во сэмплов</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_11">
-         <property name="text">
-          <string>Кол-во сэмплов запуска</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="label_12">
-         <property name="text">
-          <string>Кол-во сэмплов остановки</string>
+       <item row="2" column="1">
+        <widget class="QSpinBox" name="levelSyncN_spinBox">
+         <property name="maximum">
+          <number>65535</number>
          </property>
         </widget>
        </item>

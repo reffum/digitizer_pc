@@ -174,16 +174,12 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
             ui->realTime_pushButton->setText("Старт");
 
 			QSignalBlocker levelSyncBlocker(ui->levelSyncEnable_checkBox);
-			QSignalBlocker levelSyncStartThrBlocker(ui->levelSyncStartThr_spinBox);
-			QSignalBlocker levelSyncStopThrBlocker(ui->levelSyncStopN_spinBox);
-			QSignalBlocker levelSyncNStartBlocker(ui->levelSyncStartN_spinBox);
-			QSignalBlocker levelSyncNStopBlocker(ui->levelSyncStopN_spinBox);
+			QSignalBlocker levelSyncStartThrBlocker(ui->levelSyncThr_spinBox);
+			QSignalBlocker levelSyncStopThrBlocker(ui->levelSyncN_spinBox);
 
 			ui->levelSyncEnable_checkBox->setChecked(m_digitizer->LevelSyncIsEnabled() ? Qt::Checked : Qt::Unchecked);
-			ui->levelSyncStartThr_spinBox->setValue(m_digitizer->GetLevelSyncStartThr());
-			ui->levelSyncStopThr_spinBox->setValue(m_digitizer->GetLevelSyncStopThr());
-			ui->levelSyncStartN_spinBox->setValue(m_digitizer->GetLevelSyncStartN());
-			ui->levelSyncStopN_spinBox->setValue(m_digitizer->GetLevelSyncStopN());
+			ui->levelSyncThr_spinBox->setValue(m_digitizer->GetLevelSyncThr());
+			ui->levelSyncN_spinBox->setValue(m_digitizer->GetLevelSyncN());
         }
         else
         {
@@ -530,10 +526,10 @@ void MainWindow::on_levelSyncEnable_checkBox_stateChanged(int state)
 			QString("Ошибка при установке Синхронизации по уровню (%1)").arg(e.GetErrorMessage()));
 	}
 }
-void MainWindow::on_levelSyncStartThr_spinBox_valueChanged(int i)
+void MainWindow::on_levelSyncThr_spinBox_valueChanged(int i)
 {
 	try {
-		m_digitizer->SetLevelSyncStartThr(i);
+		m_digitizer->SetLevelSyncThr(i);
 	}
 	catch (DigitizerException e)
 	{
@@ -543,35 +539,10 @@ void MainWindow::on_levelSyncStartThr_spinBox_valueChanged(int i)
 	}
 }
 
-void MainWindow::on_levelSyncStopThr_spinBox_valueChanged(int i)
+void MainWindow::on_levelSyncN_spinBox_valueChanged(int i)
 {
 	try {
-		m_digitizer->SetLevelSyncStopThr(i);
-	}
-	catch (DigitizerException e)
-	{
-		QMessageBox::critical(this,
-			"Ошибка",
-			QString("Ошибка при установке Синхронизации по уровню (%1)").arg(e.GetErrorMessage()));
-	}
-}
-void MainWindow::on_levelSyncStartN_spinBox_valueChanged(int i)
-{
-	try {
-		m_digitizer->SetLevelSyncStartN(i);
-	}
-	catch (DigitizerException e)
-	{
-		QMessageBox::critical(this,
-			"Ошибка",
-			QString("Ошибка при установке Синхронизации по уровню (%1)").arg(e.GetErrorMessage()));
-	}
-}
-
-void MainWindow::on_levelSyncStopN_spinBox_valueChanged(int i)
-{
-	try {
-		m_digitizer->SetLevelSyncStopN(i);
+		m_digitizer->SetLevelSyncN(i);
 	}
 	catch (DigitizerException e)
 	{

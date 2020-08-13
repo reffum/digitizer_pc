@@ -458,10 +458,10 @@ bool Digitizer::LevelSyncIsEnabled()
 	}
 }
 
-void Digitizer::SetLevelSyncStartThr(quint16 v)
+void Digitizer::SetLevelSyncThr(quint16 v)
 {
 	try {
-		Modbus::WriteRegister(LS_START_THR, v);
+		Modbus::WriteRegister(LS_THR, v);
 	}
 	catch (ModbusException e)
 	{
@@ -469,10 +469,10 @@ void Digitizer::SetLevelSyncStartThr(quint16 v)
 	}
 }
 
-quint16 Digitizer::GetLevelSyncStartThr()
+quint16 Digitizer::GetLevelSyncThr()
 {
 	try {
-		return Modbus::ReadRegister(LS_START_THR);
+		return Modbus::ReadRegister(LS_THR);
 	}
 	catch (ModbusException e)
 	{
@@ -480,10 +480,10 @@ quint16 Digitizer::GetLevelSyncStartThr()
 	}
 }
 
-void Digitizer::SetLevelSyncStopThr(quint16 v)
+void Digitizer::SetLevelSyncN(quint16 v)
 {
 	try {
-		Modbus::WriteRegister(LS_STOP_THR, v);
+		Modbus::WriteRegister(LS_N, v);
 	}
 	catch (ModbusException e)
 	{
@@ -491,53 +491,10 @@ void Digitizer::SetLevelSyncStopThr(quint16 v)
 	}
 }
 
-quint16 Digitizer::GetLevelSyncStopThr()
+quint16 Digitizer::GetLevelSyncN()
 {
 	try {
-		return Modbus::ReadRegister(LS_STOP_THR);
-	}
-	catch (ModbusException e)
-	{
-		throw DigitizerException(e.getMessage());
-	}
-}
-
-void Digitizer::SetLevelSyncStartN(quint16 v)
-{
-	try {
-		Modbus::WriteRegister(LS_N_START, v);
-	}
-	catch (ModbusException e)
-	{
-		throw DigitizerException(e.getMessage());
-	}
-}
-
-quint16 Digitizer::GetLevelSyncStartN()
-{
-	try {
-		return Modbus::ReadRegister(LS_N_START);
-	}
-	catch (ModbusException e)
-	{
-		throw DigitizerException(e.getMessage());
-	}
-}
-
-void Digitizer::SetLevelSyncStopN(quint16 v)
-{
-	try {
-		Modbus::WriteRegister(LS_N_STOP, v);
-	}
-	catch (ModbusException e)
-	{
-		throw DigitizerException(e.getMessage());
-	}
-}
-quint16 Digitizer::GetLevelSyncStopN()
-{
-	try {
-		return Modbus::ReadRegister(LS_N_STOP);
+		return Modbus::ReadRegister(LS_N);
 	}
 	catch (ModbusException e)
 	{

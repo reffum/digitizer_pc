@@ -118,17 +118,11 @@ public:
 	void LevelSyncEnable(bool);
 	bool LevelSyncIsEnabled();
 
-	void SetLevelSyncStartThr(quint16);
-	quint16 GetLevelSyncStartThr();
+	void SetLevelSyncThr(quint16);
+	quint16 GetLevelSyncThr();
 
-	void SetLevelSyncStopThr(quint16);
-	quint16 GetLevelSyncStopThr();
-
-	void SetLevelSyncStartN(quint16);
-	quint16 GetLevelSyncStartN();
-
-	void SetLevelSyncStopN(quint16);
-	quint16 GetLevelSyncStopN();
+	void SetLevelSyncN(quint16);
+	quint16 GetLevelSyncN();
 
 signals:
     // Emit in case of data receive or write to file error.

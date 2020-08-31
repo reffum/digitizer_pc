@@ -86,6 +86,7 @@ public:
     // PWM control
     void SetPwmEnable(bool);
     bool GetPwmEnable();
+    void PwmStart(unsigned N);
 
     void SetPwmFreq(unsigned freq);
     unsigned GetPwmFreq();

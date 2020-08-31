@@ -410,6 +410,20 @@ void MainWindow::on_pwm_pushButton_clicked(bool checked)
     }
 }
 
+void MainWindow::on_pwm_n_pushButton_clicked(bool checked)
+{
+    Q_UNUSED(checked)
+
+    try{
+        m_digitizer->PwmStart(N);
+    }
+    catch (DigitizerException e) {
+        QMessageBox::critical(this,
+            "Ошибка",
+            QString("Ошибка при запуске N-pulse ШИМ(%1)").arg(e.GetErrorMessage()));
+    }
+}
+
 void MainWindow::on_pwm_checkBox_stateChanged(int state)
 {
     try {

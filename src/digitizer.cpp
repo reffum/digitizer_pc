@@ -193,6 +193,17 @@ bool Digitizer::GetPwmEnable()
     }
 }
 
+void Digitizer::PwmStart(unsigned N)
+{
+    try {
+        Modbus::WriteRegister(PWM_N, N);
+    }
+    catch (ModbusException e)
+    {
+        throw DigitizerException(e.getMessage());
+    }
+}
+
 void Digitizer::SetPwmFreq(unsigned int freq)
 {
     try {

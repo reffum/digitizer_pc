@@ -512,3 +512,37 @@ quint16 Digitizer::GetLevelSyncN()
 		throw DigitizerException(e.getMessage());
 	}
 }
+
+void Digitizer::SetLvdsEn(bool b)
+{
+    try {
+        Modbus::WriteRegister(LVDS_IN, _LVDS_IN_EN);
+    }
+    catch (ModbusException e)
+    {
+        throw DigitizerException(e.getMessage());
+    }
+}
+
+bool Digitizer::GetLvdsEn()
+{
+    try {
+        quint16 r = Modbus::ReadRegister(LVDS_IN);
+        return r & _LVDS_IN_EN;
+    }
+    catch (ModbusException e)
+    {
+        throw DigitizerException(e.getMessage());
+    }
+}
+
+void Digitizer::LvdsStart()
+{
+    try {
+        Modbus::WriteRegister(LVDS_IN, _LVDS_IN_EN);
+    }
+    catch (ModbusException e)
+    {
+        throw DigitizerException(e.getMessage());
+    }
+}

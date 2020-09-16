@@ -58,6 +58,8 @@ private slots:
 	void on_levelSyncEnable_checkBox_stateChanged(int state);
 	void on_levelSyncThr_spinBox_valueChanged(int i);
 	void on_levelSyncN_spinBox_valueChanged(int i);
+    void on_lvds_in_en_checkBox_stateChanged(int state);
+    void on_lvds_in_start_pushButton_clicked(bool checked = false);
 	
     void m_digitizer_saveFileError(QString msg);
     void m_digitizer_noRealTimeDataReceiveComplete();

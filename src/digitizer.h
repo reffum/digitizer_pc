@@ -125,6 +125,10 @@ public:
 	void SetLevelSyncN(quint16);
 	quint16 GetLevelSyncN();
 
+    void SetLvdsEn(bool);
+    bool GetLvdsEn();
+    void LvdsStart();
+
 signals:
     // Emit in case of data receive or write to file error.
     void dataReceveError(QString msg);

@@ -117,6 +117,8 @@ void MainWindow::Disconnect()
 
     ui->realTime_pushButton->setChecked(true);
     ui->realTime_pushButton->setText("Старт");
+
+    ui->lvds_in_groupBox->setEnabled(false);
 }
 
 void MainWindow::on_connect_pushButton_clicked(bool checked)
@@ -180,6 +182,11 @@ void MainWindow::on_connect_pushButton_clicked(bool checked)
 			ui->levelSyncEnable_checkBox->setChecked(m_digitizer->LevelSyncIsEnabled() ? Qt::Checked : Qt::Unchecked);
 			ui->levelSyncThr_spinBox->setValue(m_digitizer->GetLevelSyncThr());
 			ui->levelSyncN_spinBox->setValue(m_digitizer->GetLevelSyncN());
+
+            QSignalBlocker lvdsInEnBlocker(ui->lvds_in_en_checkBox);
+            ui->lvds_in_groupBox->setEnabled(true);
+
+            ui->lvds_in_en_checkBox->setChecked(m_digitizer->GetLvdsEn() ? Qt::Checked : Qt::Unchecked);
         }
         else
         {
@@ -415,6 +422,7 @@ void MainWindow::on_pwm_n_pushButton_clicked(bool checked)
     Q_UNUSED(checked)
 
     try{
+        int N = ui->pwm_n_spinBox->value();
         m_digitizer->PwmStart(N);
     }
     catch (DigitizerException e) {
@@ -565,4 +573,32 @@ void MainWindow::on_levelSyncN_spinBox_valueChanged(int i)
 			"Ошибка",
 			QString("Ошибка при установке Синхронизации по уровню (%1)").arg(e.GetErrorMessage()));
 	}
+}
+
+void MainWindow::on_lvds_in_en_checkBox_stateChanged(int state)
+{
+    try {
+        m_digitizer->SetLvdsEn(state == Qt::Checked);
+    }
+    catch (DigitizerException e)
+    {
+        QMessageBox::critical(this,
+            "Ошибка",
+            QString("Ошибка при включении/отключении LVDS_IN %1").arg(e.GetErrorMessage()));
+    }
+}
+
+void MainWindow::on_lvds_in_start_pushButton_clicked(bool checked)
+{
+    Q_UNUSED(checked)
+
+    try {
+        m_digitizer->LvdsStart();
+    }
+    catch (DigitizerException e)
+    {
+        QMessageBox::critical(this,
+            "Ошибка",
+            QString("Ошибка при запуске LVDS_IN %1").arg(e.GetErrorMessage()));
+    }
 }

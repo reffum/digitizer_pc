@@ -28,6 +28,8 @@ const quint16 DDS_AMP = 18;
 const quint16 IO_EXP_REG = 19;
 const quint16 LS_THR = 20;
 const quint16 LS_N = 21;
+const quint16 PSEL = 22;
+const quint16 LVDS_IN = 23;
 
 const quint16 _CR_START = 1;
 const quint16 _CR_TEST = 2;
@@ -37,6 +39,8 @@ const quint16 _CR_LS = 8;
 const quint16 _SR_RT_OVF = 1;
 
 const quint16 _PWM_CONTROL_ENABLE = 1;
+
+const quint16 _LVDS_IN_EN = 1;
 
 const quint16 ID_VAL =0x55AA;
 
